@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <Version>0.1.0</Version>
+    
+    <Authors>mastersign, jcailon, shani.elh, Joe White, Hüseyin Uslu</Authors>
+
+    <PackageProjectUrl>https://github.com/mastersign/Mastersign.MicroHttpServer</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/mastersign/Mastersign.MicroHttpServer/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageTags>http server microframeworks</PackageTags>
+    
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mastersign/Mastersign.MicroHttpServer.git</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>

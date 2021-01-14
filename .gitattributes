@@ -1,0 +1,6 @@
+# Force the following filetypes to have unix eols
+*.sh text eol=lf
+
+# Force the following to have windows eols
+*.bat text eol=crlf
+*.cmd text eol=crlf
