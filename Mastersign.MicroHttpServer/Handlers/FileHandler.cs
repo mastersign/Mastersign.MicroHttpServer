@@ -69,9 +69,12 @@ namespace Mastersign.MicroHttpServer
 
             if (!File.Exists(path))
             {
+                context.Logger.Trace($"Static file: {context.Route} => {path} NOT FOUND");
                 await next().ConfigureAwait(false);
                 return;
             }
+
+            context.Logger.Trace($"Static file: {context.Route} => {path}");
 
             context.Response = StreamHttpResponse.Create(
                 File.OpenRead(path),
