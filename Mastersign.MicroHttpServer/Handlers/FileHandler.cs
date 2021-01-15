@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
+    [DebuggerDisplay("Static Files Handler: {RootDirectory,nq}")]
     public class FileHandler : IHttpRequestHandler
     {
         private static readonly string DIR_SEPARATOR = new string(Path.DirectorySeparatorChar, 1);

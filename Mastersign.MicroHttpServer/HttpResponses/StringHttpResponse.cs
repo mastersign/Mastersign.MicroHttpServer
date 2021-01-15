@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -7,11 +8,15 @@ using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
+    [DebuggerDisplay("String Response: {ResponseCode}, {ContentLength} Bytes, {ContentType}")]
     public sealed class StringHttpResponse : HttpResponseBase
     {
         private static readonly Encoding _encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
         private const int DEFAULT_BUFFER_SIZE = 1024;
         private readonly string _body;
+
+        internal int ContentLength => Headers.GetByName<int>("Content-Length");
+        internal string ContentType => Headers.GetByName("Content-Type");
 
         public StringHttpResponse(string body, HttpResponseCode code, IStringLookup headers) 
             : base(code, headers)

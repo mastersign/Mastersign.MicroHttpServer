@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
+    [DebuggerDisplay("Empty Response: {ResponseCode}")]
     public sealed class EmptyHttpResponse : HttpResponseBase
     {
         public EmptyHttpResponse(HttpResponseCode code, IStringLookup headers) 

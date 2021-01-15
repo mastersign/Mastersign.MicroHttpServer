@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
+    [DebuggerDisplay("Redirecting Response: {ResponseCode} -> {Location,nq}")]
     public sealed class RedirectingHttpResponse : HttpResponseBase
     {
+        internal string Location => Headers.GetByName("Location");
+
         public RedirectingHttpResponse(HttpResponseCode code, IStringLookup headers) 
             : base(code, headers) 
         {

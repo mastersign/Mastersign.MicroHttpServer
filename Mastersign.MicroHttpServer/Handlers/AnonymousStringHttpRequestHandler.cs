@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
+    [DebuggerDisplay("String Generator Handler: {ContentType}")]
     public class AnonymousStringHttpRequestHandler : IHttpRequestHandler
     {
         private readonly Func<IHttpContext, string> _method;
         private readonly string _contentType;
+
+        internal string ContentType => _contentType;
 
         public AnonymousStringHttpRequestHandler(Func<IHttpContext, string> method, string contentType = "text/html; charset=utf-8")
         {

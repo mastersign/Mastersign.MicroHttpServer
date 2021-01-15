@@ -1,14 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
+    [DebuggerDisplay("Stream Response: {ResponseCode}, {StreamLength} Bytes")]
     public sealed class StreamHttpResponse : HttpResponseBase
     {
         private readonly Stream _body;
+
+        internal string StreamLength
+        {
+            get
+            {
+                try
+                {
+                    return _body.Length.ToString(CultureInfo.InvariantCulture);
+                }
+                catch (Exception)
+                {
+                    return "?";
+                }
+            }
+        }
 
         public StreamHttpResponse(Stream body, HttpResponseCode code, IStringLookup headers)
             : base(code, headers)

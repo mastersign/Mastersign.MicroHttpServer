@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
+    [DebuggerDisplay("Byte Array Generator Handler: {ContentType}")]
     public class AnonymousByteArrayHttpRequestHandler : IHttpRequestHandler
     {
         private readonly Func<IHttpContext, byte[]> _method;
         private readonly string _contentType;
+
+        internal string ContentType => _contentType;
 
         public AnonymousByteArrayHttpRequestHandler(Func<IHttpContext, byte[]> method, string contentType = "application/octet-stream")
         {

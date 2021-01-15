@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
+    [DebuggerDisplay("Byte Array Response: {ResponseCode}, {ContentLength} Bytes, {ContentType}")]
     public sealed class ByteArrayHttpResponse : HttpResponseBase
     {
         private readonly byte[] _body;
         private readonly int _offset;
         private readonly int _length;
+
+        internal int ContentLength => Headers.GetByName<int>("Content-Length");
+        internal string ContentType => Headers.GetByName("Content-Type");
 
         public ByteArrayHttpResponse(byte[] body, int offset, int length, HttpResponseCode code, IStringLookup headers)
             : base(code, headers)
