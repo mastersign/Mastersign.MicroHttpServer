@@ -6,23 +6,26 @@ namespace Mastersign.MicroHttpServer.Demo
     {
         static void Main(string[] args)
         {
-            using var svr = new HttpServer();
-            svr.LogToConsole(LogLevel.Verbose);
+            using var svr = new HttpServer()
+                .LogToConsole(LogLevel.Debug)
+                .ListenToLoopback();
 
-            svr.Use(new ExceptionHandler());
-            svr.Use(new TimingMiddleware(LogLevel.Information));
-            svr.Use(new CompressionMiddelware(new GZipCompressor(), new DeflateCompressor()));
-            svr.PathRouter()
-               .With("/", ctx => "Index")
-               .With("files", new FileHandler(@"F:\"))
-               .With("redirect", (ctx, _) => ctx.RedirectTemporarily("/about"))
-               .With("about", ctx => "About")
-               .PathRouter("api")
-                    .With("info", (ctx, _) => ctx.Respond(StringHttpResponse.Text("Info")))
-                    .Without(ctx => "API");
-            svr.Use(new NotFoundHandler());
+            // close regex pattern at the and when not diving
 
-            svr.ListenToLoopback();
+            svr
+                .Use(new ExceptionHandler())
+                .Use(new TimingMiddleware(LogLevel.Information))
+                .Use(new CompressionMiddelware(new GZipCompressor(), new DeflateCompressor()))
+                .Dive("/files").Get(new FileHandler(@"F:\")).Ascent(new NotFoundHandler())
+                .UseWhen("redirect", (ctx, _) => ctx.RedirectTemporarily("about"))
+                .Get("about", ctx => "About")
+                .Dive("api")
+                    .Get("info", (ctx, _) => ctx.Respond(StringHttpResponse.Text("Info")))
+                    .Ascent(ctx => "API")
+                .Get("other", ctx => "Other")
+                .Get("/", ctx => "Index")
+                .Use(new NotFoundHandler());
+
             svr.Start();
 
             Console.WriteLine("Press any key to stop...");

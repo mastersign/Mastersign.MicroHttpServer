@@ -9,7 +9,13 @@ namespace Mastersign.MicroHttpServer
     public static class StringLookupExtensions
     {
         public static IStringLookup ToStringLookup(this IEnumerable<KeyValuePair<string, string>> entries)
-            => new DictionaryStringLookup(entries.ToDictionary(e => e.Key, e => e.Value, StringComparer.InvariantCultureIgnoreCase));
+            => new DictionaryStringLookup(
+                entries.ToDictionary(e => e.Key, e => e.Value, StringComparer.InvariantCultureIgnoreCase));
+
+        public static IStringLookup ToChainedStringLookup(this IEnumerable<KeyValuePair<string, string>> entries,
+            IStringLookup parent)
+            => new ChainedDictionaryStringLookup(parent,
+                entries.ToDictionary(e => e.Key, e => e.Value, StringComparer.InvariantCultureIgnoreCase));
 
         public static bool TryGetByName<T>(this IStringLookup headers, string name, out T value)
         {

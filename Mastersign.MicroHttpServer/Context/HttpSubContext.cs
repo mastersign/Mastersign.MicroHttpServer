@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 
 namespace Mastersign.MicroHttpServer
 {
@@ -8,13 +6,24 @@ namespace Mastersign.MicroHttpServer
     {
         private readonly IHttpContext _parent;
 
-        public HttpSubContext(IHttpContext parent, IEnumerable<string> routeSegments)
+        public HttpSubContext(IHttpContext parent, HttpRouteMatchResult match)
         {
             _parent = parent;
-            Route = routeSegments.ToList();
+            if (match.TrimmedRoute != null)
+            {
+                _route = match.TrimmedRoute.TrimStart('/');
+            }
+            if (match.RouteParameters != null)
+            {
+                _routeParameters = match.RouteParameters.ToChainedStringLookup(parent.RouteParameters);
+            }
         }
 
-        public IReadOnlyList<string> Route { get; }
+        private readonly string _route;
+        public string Route => _route ?? _parent.Route;
+
+        private readonly IStringLookup _routeParameters;
+        public IStringLookup RouteParameters => _routeParameters ?? _parent.RouteParameters;
 
         public ILogger Logger => _parent.Logger;
 
@@ -31,6 +40,6 @@ namespace Mastersign.MicroHttpServer
 
         public dynamic State => _parent.State;
 
-        public IHttpContext Dive(int segments = 1) => new HttpSubContext(this, Route.Skip(segments));
+        public IHttpContext Dive(HttpRouteMatchResult match) => new HttpSubContext(this, match);
     }
 }

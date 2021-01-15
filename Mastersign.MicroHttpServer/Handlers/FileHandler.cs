@@ -52,7 +52,7 @@ namespace Mastersign.MicroHttpServer
         public async Task Handle(IHttpContext context, Func<Task> next)
         {
             // prevent escaping root directory by normalizing with Uri.AbsolutePath
-            var requestPath = string.Join(DIR_SEPARATOR, context.Route);
+            var requestPath = context.Route;
 
             if (string.IsNullOrEmpty(requestPath))
             {

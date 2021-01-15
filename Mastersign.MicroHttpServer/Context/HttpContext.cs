@@ -13,7 +13,8 @@ namespace Mastersign.MicroHttpServer
         {
             Logger = logger;
             Request = request;
-            Route = request.PathSegments;
+            Route = request.Url.AbsolutePath.TrimStart('/');
+            RouteParameters = EmptyStringLookup.Instance;
             RemoteEndPoint = remoteEndPoint;
             Cookies = new CookiesStorage(Request.Headers.GetByNameOrDefault("Cookie", string.Empty));
         }
@@ -28,10 +29,12 @@ namespace Mastersign.MicroHttpServer
 
         public EndPoint RemoteEndPoint { get; }
 
-        public IReadOnlyList<string> Route { get; }
+        public string Route { get; }
+
+        public IStringLookup RouteParameters { get; }
 
         public dynamic State => _state;
 
-        public IHttpContext Dive(int segments) => new HttpSubContext(this, Route.Skip(segments));
+        public IHttpContext Dive(HttpRouteMatchResult match) => new HttpSubContext(this, match);
     }
 }

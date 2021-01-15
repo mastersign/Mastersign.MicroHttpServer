@@ -2,16 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Mastersign.MicroHttpServer.Test")]
+
 namespace Mastersign.MicroHttpServer
 {
-    public sealed class HttpServer : IDisposable
+    public sealed class HttpServer : IDisposable, IHttpServer
     {
-        private readonly IList<IHttpRequestHandler> _handlers = new List<IHttpRequestHandler>();
         private readonly IList<IHttpListener> _listeners = new List<IHttpListener>();
         private readonly IList<ILogger> _loggers = new List<ILogger>();
-        private readonly ILogger _logger;
 
+        private readonly ILogger _logger;
         private readonly IHttpRequestProvider _requestProvider;
+
+        private readonly HttpRoutingPipeline _pipeline = new HttpRoutingPipeline();
 
         public int BufferSize { get; set; } = 1024 * 8;
         public int PostStreamLimit { get; set; } = 1024 * 1024;
@@ -32,19 +35,40 @@ namespace Mastersign.MicroHttpServer
             _isActive = false;
         }
 
-        public void Use(IHttpRequestHandler handler)
+        public IHttpRoutable Use(IHttpRequestHandler handler)
         {
-            _handlers.Add(handler);
+            _pipeline.PushUnconditional(handler);
+            return this;
         }
 
-        public void Use(IHttpListener listener)
+        public IHttpRoutable UseWhen(IHttpRouteCondition condition, IHttpRequestHandler handler)
+        {
+            _pipeline.PushConditional(condition, handler, () => new HttpRouter());
+            return this;
+        }
+
+        public IHttpRoutable Dive(IHttpRouteCondition condition)
+        {
+            var routed = new HttpRouted(this);
+            _pipeline.PushConditional(condition, routed, () => new HttpRouter());
+            return routed;
+        }
+
+        public IHttpRoutable Ascent(IHttpRequestHandler fallback = null)
+        {
+            throw new NotSupportedException("You can not ascent from the routing context of the server");
+        }
+
+        public IHttpServer Use(IHttpListener listener)
         {
             _listeners.Add(listener);
+            return this;
         }
 
-        public void Use(ILogger log)
+        public IHttpServer Use(ILogger log)
         {
             _loggers.Add(log);
+            return this;
         }
 
         public void Start()
@@ -63,7 +87,7 @@ namespace Mastersign.MicroHttpServer
 
         private async void Listen(IHttpListener listener)
         {
-            var aggregatedHandler = _handlers.Aggregate();
+            var pipelineHandler = _pipeline.GetPipelineHandler();
 
             while (_isActive)
             {
@@ -71,7 +95,7 @@ namespace Mastersign.MicroHttpServer
                 {
                     new HttpClientHandler(
                         await listener.GetClient().ConfigureAwait(false),
-                        aggregatedHandler,
+                        pipelineHandler,
                         _requestProvider,
                         _logger,
                         BufferSize,

@@ -13,12 +13,15 @@ namespace Mastersign.MicroHttpServer
 
         private static Func<IHttpContext, Task> Aggregate(this IList<IHttpRequestHandler> handlers, int index)
         {
-            if (index == handlers.Count) return null;
+            if (index >= handlers.Count) return null;
 
             var currentHandler = handlers[index];
             var nextHandler = handlers.Aggregate(index + 1);
 
-            return context => currentHandler.Handle(context, () => nextHandler(context));
+            return context => currentHandler.Handle(context,
+                nextHandler != null 
+                    ? () => nextHandler(context) 
+                    : (Func<Task>)(() => Task.Factory.GetCompleted()));
         }
     }
 }

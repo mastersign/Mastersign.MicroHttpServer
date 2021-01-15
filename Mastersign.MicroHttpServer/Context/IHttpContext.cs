@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 
 namespace Mastersign.MicroHttpServer
 {
@@ -15,10 +14,12 @@ namespace Mastersign.MicroHttpServer
 
         EndPoint RemoteEndPoint { get; }
 
-        IReadOnlyList<string> Route { get; }
+        string Route { get; }
+
+        IStringLookup RouteParameters { get; }
 
         dynamic State { get; }
 
-        IHttpContext Dive(int segments = 1);
+        IHttpContext Dive(HttpRouteMatchResult matchResult);
     }
 }
