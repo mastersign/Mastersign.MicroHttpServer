@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Mastersign.MicroHttpServer.HttpResponses
+namespace Mastersign.MicroHttpServer
 {
     public sealed class ByteArrayHttpResponse : HttpResponseBase
     {
