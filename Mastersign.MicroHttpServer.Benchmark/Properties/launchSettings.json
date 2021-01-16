@@ -1,0 +1,20 @@
+{
+  "profiles": {
+    "Minimal": {
+      "commandName": "Project",
+      "commandLineArgs": "Minimal"
+    },
+    "Minimal Log Warning Colors": {
+      "commandName": "Project",
+      "commandLineArgs": "-LogToConsole -LogWithColors -LogLevel Warning Minimal"
+    },
+    "Minimal Log Verbose": {
+      "commandName": "Project",
+      "commandLineArgs": "-LogToConsole -LogLevel Verbose Minimal"
+    },
+    "Minimal Log Verbose Colors": {
+      "commandName": "Project",
+      "commandLineArgs": "-LogToConsole -LogWithColors -LogLevel Verbose Minimal"
+    }
+  }
+}

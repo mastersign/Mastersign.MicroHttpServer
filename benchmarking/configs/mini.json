@@ -1,0 +1,22 @@
+{
+    "Requests": 10000,
+    "Concurrency": 8,
+    "RequestTimeout": 10,
+    "Host": "127.0.0.1",
+    "Port": 8080,
+    "Configurations": ["Release"],
+    "Frameworks": ["net5.0"],
+    "Variations": [
+        {
+            "Name": "Minimal log debug",
+            "FileName": "minimal-log_debug",
+            "LogToConsole": true,
+            "LogWithColors": true,
+            "LogLevel": "Debug",
+            "Setups": [
+                "Minimal"
+            ],
+            "Route": "/"
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+{
+    "Requests": 50000,
+    "Concurrency": 16,
+    "RequestTimeout": 2,
+    "Host": "127.0.0.1",
+    "Port": 8080,
+    "Configurations": [
+        "Release",
+        "Debug"
+    ],
+    "Frameworks": [
+        "net5.0",
+        "netcoreapp3.1",
+        "net461"
+    ],
+    "Variations": [
+        {
+            "Name": "Minimal no log",
+            "FileName": "minimal",
+            "Setups": [
+                "Minimal"
+            ],
+            "Route": "/"
+        },
+        {
+            "Name": "Minimal log Verbose with colors",
+            "FileName": "minimal-log_vrb_clr",
+            "LogToConsole": true,
+            "LogWithColors": true,
+            "LogLevel": "Verbose",
+            "Setups": [
+                "Minimal"
+            ],
+            "Route": "/"
+        }
+    ]
+}

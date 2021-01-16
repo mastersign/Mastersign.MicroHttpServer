@@ -1,0 +1,22 @@
+{
+    "Requests": 50000,
+    "Concurrency": 16,
+    "RequestTimeout": 2,
+    "Host": "127.0.0.1",
+    "Port": 8080,
+    "Configurations": ["Release"],
+    "Frameworks": ["net5.0"],
+    "Variations": [
+        {
+            "Name": "Minimal",
+            "FileName": "minimal",
+            "LogToConsole": true,
+            "LogWithColors": false,
+            "LogLevel": "Information",
+            "Setups": [
+                "Minimal"
+            ],
+            "Route": "/"
+        }
+    ]
+}

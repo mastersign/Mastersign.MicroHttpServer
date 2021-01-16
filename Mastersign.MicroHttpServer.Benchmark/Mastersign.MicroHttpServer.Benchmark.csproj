@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netcoreapp3.1;net5.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mastersign.MicroHttpServer\Mastersign.MicroHttpServer.csproj" />
+  </ItemGroup>
+
+</Project>

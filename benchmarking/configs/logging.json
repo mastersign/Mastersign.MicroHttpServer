@@ -1,0 +1,52 @@
+{
+    "Requests": 50000,
+    "Concurrency": 16,
+    "RequestTimeout": 2,
+    "Host": "127.0.0.1",
+    "Port": 8080,
+    "Configurations": ["Release"],
+    "Frameworks": ["net5.0"],
+    "Variations": [
+        {
+            "Name": "Minimal no log",
+            "FileName": "minimal",
+            "Setups": [
+                "Minimal"
+            ],
+            "Route": "/"
+        },
+        {
+            "Name": "Minimal log Warning",
+            "FileName": "minimal-log_wrn",
+            "LogToConsole": true,
+            "LogWithColors": true,
+            "LogLevel": "Warning",
+            "Setups": [
+                "Minimal"
+            ],
+            "Route": "/"
+        },
+        {
+            "Name": "Minimal log Verbose",
+            "FileName": "minimal-log_vrb",
+            "LogToConsole": true,
+            "LogWithColors": false,
+            "LogLevel": "Verbose",
+            "Setups": [
+                "Minimal"
+            ],
+            "Route": "/"
+        },
+        {
+            "Name": "Minimal log Verbose with colors",
+            "FileName": "minimal-log_vrb_clr",
+            "LogToConsole": true,
+            "LogWithColors": true,
+            "LogLevel": "Verbose",
+            "Setups": [
+                "Minimal"
+            ],
+            "Route": "/"
+        }
+    ]
+}
