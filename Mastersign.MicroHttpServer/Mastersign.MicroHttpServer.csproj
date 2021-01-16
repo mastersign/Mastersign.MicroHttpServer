@@ -15,4 +15,24 @@
     <RepositoryUrl>https://github.com/mastersign/Mastersign.MicroHttpServer.git</RepositoryUrl>
   </PropertyGroup>
 
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="Routing\GeneratedHttpRoutableExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GeneratedHttpRoutableExtensions.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Update="Routing\GeneratedHttpRoutableExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GeneratedHttpRoutableExtensions.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

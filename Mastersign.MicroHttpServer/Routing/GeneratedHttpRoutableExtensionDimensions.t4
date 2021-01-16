@@ -1,0 +1,127 @@
+﻿<#+
+
+struct Response
+{
+    public bool PassThrough;
+    public string Arguments;
+    public string Application;
+}
+
+struct Condition
+{
+    public string Name;
+    public bool PassThrough;
+    public string MethodSuffix;
+    public string TargetMethod;
+    public string Arguments;
+    public string Application;
+}
+
+Response[] Responses = new[] {
+    new Response {
+        PassThrough = true,
+        Arguments = "IHttpRequestHandler handler",
+        Application = "handler",
+    },
+    new Response {
+        Arguments = "Func<IHttpContext, Func<Task>, Task> handler",
+        Application = "new AnonymousHttpRequestHandler(handler)",
+    },
+    new Response {
+        Arguments = "Func<IHttpContext, IHttpResponse> responseGenerator",
+        Application = "(ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); }",
+    },
+    new Response {
+        Arguments = "Func<IHttpContext, string> contentGenerator, string contentType = DEFAULT_STRING_MIMETYPE",
+        Application = "new AnonymousStringHttpRequestHandler(contentGenerator, contentType)",
+    },
+    new Response {
+        Arguments = "Func<IHttpContext, byte[]> contentGenerator, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE",
+        Application = "new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType)",
+    },
+    new Response {
+        Arguments = "string text, string contentType = DEFAULT_STRING_MIMETYPE",
+        Application = "new ConstStringHttpRequestHandler(text, contentType: contentType)",
+    },
+    new Response {
+        Arguments = "byte[] data, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE",
+        Application = "new ConstByteArrayHttpRequestHandler(data, contentType: contentType)",
+    },
+};
+
+Condition[] Conditions = new[] {
+    new Condition {
+        Name = "Condition pass through",
+        PassThrough = true,
+        MethodSuffix = "",
+        TargetMethod = "UseWhen",
+        Arguments = "IHttpRouteCondition condition",
+        Application = "condition",
+    },
+    new Condition {
+        Name = "HTTP method",
+        MethodSuffix = "",
+        TargetMethod = "UseWhen",
+        Arguments = "HttpMethod httpMethod",
+        Application = "new HttpMethodCondition(httpMethod)",
+    },
+    new Condition {
+        Name = "Regex all HTTP methods",
+        MethodSuffix = "Regex",
+        TargetMethod = "UseWhen",
+        Arguments = "string regex",
+        Application = "new RegexRouteCondition(null, regex)",
+    },
+    new Condition {
+        Name = "Regex and HTTP method",
+        MethodSuffix = "Regex",
+        TargetMethod = "UseWhen",
+        Arguments = "HttpMethod httpMethod, string regex",
+        Application = "new RegexRouteCondition(httpMethod, regex)",
+    },
+    new Condition {
+        Name = "Route pattern all HTTP methods",
+        MethodSuffix = "",
+        TargetMethod = "UseWhen",
+        Arguments = "string pattern",
+        Application = "RegexRouteCondition.FromRoutePattern(null, pattern)",
+    },
+    new Condition {
+        Name = "Route pattern and HTTP method",
+        MethodSuffix = "",
+        TargetMethod = "UseWhen",
+        Arguments = "HttpMethod httpMethod, string pattern",
+        Application = "RegexRouteCondition.FromRoutePattern(httpMethod, pattern)",
+    },
+};
+
+Condition[] HttpMethodConditions = new[] {
+    new Condition {
+        Name = "All routes",
+        MethodSuffix = "",
+        Arguments = null,
+        Application = "HttpMethodCondition./* METHOD */Instance",
+    },
+    new Condition {
+        Name = "Regex",
+        MethodSuffix = "Regex",
+        Arguments = "string regex",
+        Application = "new RegexRouteCondition(HttpMethod./* METHOD */, regex)",
+    },
+    new Condition {
+        Name = "Route pattern",
+        MethodSuffix = "",
+        Arguments = "string pattern",
+        Application = "RegexRouteCondition.FromRoutePattern(HttpMethod./* METHOD */, pattern)",
+    },
+};
+
+string[] HttpMethods = new[] {
+    "Get",
+    "Post",
+    "Put",
+    "Patch",
+    "Delete",
+};
+
+#>

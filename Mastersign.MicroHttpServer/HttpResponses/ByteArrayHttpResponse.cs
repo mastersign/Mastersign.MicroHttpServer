@@ -35,8 +35,8 @@ namespace Mastersign.MicroHttpServer
 
         public static ByteArrayHttpResponse Create(
             byte[] body, int offset, int length,
-            HttpResponseCode code = HttpResponseCode.OK,
             string contentType = "application/octet-stream",
+            HttpResponseCode code = HttpResponseCode.OK,
             bool keepAlive = true)
         {
             return new ByteArrayHttpResponse(body, offset, length, code, new ListStringLookup(new[] {

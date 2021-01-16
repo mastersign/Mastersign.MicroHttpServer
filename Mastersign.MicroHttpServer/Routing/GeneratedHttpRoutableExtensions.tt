@@ -1,0 +1,75 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#@ include file="GeneratedHttpRoutableExtensionDimensions.t4" #>
+using System;
+using System.Threading.Tasks;
+
+namespace Mastersign.MicroHttpServer
+{
+    public static class GeneratedHttpRoutableExtensions
+    {
+        private const string DEFAULT_STRING_MIMETYPE = "text/html; charset=utf-8";
+        private const string DEFAULT_BYTE_ARRAY_MIMETYPE = "application/octet-stream";
+
+        #region Unconditional
+
+<# foreach (var response in Responses) { if (response.PassThrough) continue; #>
+        public static IHttpRoutable Use(this IHttpRoutable r, <#= response.Arguments #>)
+            => r.Use(<#= response.Application #>);
+<# } #>
+
+        #endregion
+
+        #region Dive
+
+<# foreach (var condition in Conditions) { if (condition.PassThrough) continue; #>
+        public static IHttpRoutable Dive<#= condition.MethodSuffix #>(this IHttpRoutable r, <#= condition.Arguments #>)
+            => r.Dive(<#= condition.Application #>);
+<# } #>
+
+        #endregion
+
+        #region Ascent
+
+<# foreach (var response in Responses) { if (response.PassThrough) continue; #>
+        public static IHttpRoutable Ascent(this IHttpRoutable r, <#= response.Arguments #>)
+            => r.Ascent(<#= response.Application #>);
+<# } #>
+
+        #endregion
+
+<# foreach (var condition in Conditions) { #>
+        #region <#= condition.Name #>
+
+<#     foreach (var response in Responses) { if (condition.PassThrough && response.PassThrough) continue; #>
+        public static IHttpRoutable UseWhen<#= condition.MethodSuffix #>(this IHttpRoutable r,
+            <#= condition.Arguments != null ? condition.Arguments + ", " : "" #>
+            <#= response.Arguments #>)
+            => r.UseWhen(<#= condition.Application #>, <#= response.Application #>);
+<#     } #>
+
+        #endregion
+
+<# } #>
+<# foreach (var method in HttpMethods) { #>
+<#     foreach (var condition in HttpMethodConditions) { #>
+        #region <#= method.ToUpper() #> <#= condition.Name #>
+
+<#         foreach (var response in Responses) { #>
+        public static IHttpRoutable <#= method #><#= condition.MethodSuffix #>(this IHttpRoutable r,
+            <#= condition.Arguments != null ? condition.Arguments + ", " : "" #>
+            <#= response.Arguments #>)
+            => r.UseWhen(<#= condition.Application.Replace("/* METHOD */", method) #>, <#= response.Application #>);
+
+<#         } #>
+        #endregion
+
+<#     } #>
+<# } #>
+
+    }
+}

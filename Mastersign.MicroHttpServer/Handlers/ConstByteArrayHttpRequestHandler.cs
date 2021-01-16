@@ -4,23 +4,23 @@ using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
-    [DebuggerDisplay("Const String Handler: {Response.ResponseCode}, {Text.Length} Chars, {ContentType}")]
-    public class ConstStringHttpRequestHandler : IHttpRequestHandler
+    [DebuggerDisplay("Const Byte Array Handler: {Response.ResponseCode}, {Content.Length} Bytes, {ContentType}")]
+    public class ConstByteArrayHttpRequestHandler : IHttpRequestHandler
     {
-        public string Text { get; }
+        public byte[] Content { get; }
         
         public string ContentType { get; }
 
         public IHttpResponse Response { get; }
 
-        public ConstStringHttpRequestHandler(string text,
+        public ConstByteArrayHttpRequestHandler(byte[] content,
             HttpResponseCode code = HttpResponseCode.OK,
-            string contentType = "text/html; charset=utf-8", 
+            string contentType = "application/octet-stream", 
             bool keepALive = true)
         {
-            Text = text;
+            Content = content;
             ContentType = contentType;
-            Response = StringHttpResponse.Create(text,
+            Response = ByteArrayHttpResponse.Create(content, 0, content.Length,
                 contentType: contentType,
                 code: code,
                 keepAlive: keepALive);
