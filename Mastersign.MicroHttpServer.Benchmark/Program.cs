@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Mastersign.MicroHttpServer.Benchmark
 {
@@ -7,26 +10,19 @@ namespace Mastersign.MicroHttpServer.Benchmark
         static void Main(string[] args)
         {
             var config = new ArgumentParser(args);
-            Console.Title = "Mastersign Micro HTTP Server Benchmark: " + string.Join(", ", config.Setups);
+            Console.Title = "Mastersign Micro HTTP Server Benchmark: " + config.Job;
 
             using var svr = new HttpServer();
 
-            foreach(var setup in config.Setups)
+            if (Jobs.TryGetValue(config.Job, out var jobMethod))
             {
-                switch (setup)
-                {
-                    case "Minimal":
-                        Minimal(svr);
-                        break;
-                    case "Infrastructure":
-                        Infrastructure(svr);
-                        break;
-                }
+                jobMethod.Invoke(null, new object[] { svr });
             }
-            if (config.Setups.Count == 0)
+            else
             {
-                Console.WriteLine("You need to specify at least one setup.");
+                Console.Error.WriteLine("Does not support job: " + config.Job);
                 Environment.Exit(1);
+                return;
             }
 
             if (config.LogToConsole)
@@ -40,19 +36,28 @@ namespace Mastersign.MicroHttpServer.Benchmark
             while (Console.ReadKey().Key != ConsoleKey.Escape) { }
         }
 
+        public static IDictionary<string, MethodInfo> Jobs => typeof(Program)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(mi =>
+                    mi.GetParameters().Length == 1 &&
+                    mi.GetParameters()[0].ParameterType == typeof(IHttpServer))
+                .ToDictionary(mi => mi.Name, mi => mi);
 
+        #region Jobs
 
-        static void Minimal(IHttpServer svr)
+        public static void Minimal(IHttpServer svr)
         {
             svr.Get(new ConstStringHttpRequestHandler("OK"));
         }
 
-        static void Infrastructure(IHttpServer svr)
+        public static void Infrastructure(IHttpServer svr)
         {
             svr.Use(new ExceptionHandler());
-            svr.Use(new CompressionMiddelware(new GZipCompressor()));
+            svr.Use(new CompressionMiddelware(new GZipCompressor(), new DeflateCompressor()));
             svr.Get(new ConstStringHttpRequestHandler("infrastructre"));
             svr.Use(new NotFoundHandler());
         }
+
+        #endregion
     }
 }

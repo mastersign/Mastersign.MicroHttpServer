@@ -81,8 +81,10 @@ try {
                         $serverArgs += "-LogWithColors"
                     }
                 }
-                foreach ($setup in $variation.Setups) {
-                    $serverArgs += $setup
+                if ($variations.Job) {
+                    $serverArgs += $variation.Job
+                } else {
+                    $serverArgs += $variation.Name
                 }
 
                 Write-Host "    Command Line: dotnet $([string]::Join(" ", $serverArgs))"
@@ -118,6 +120,7 @@ try {
                     "Framework" = $framework
                     "Variation" = $variation.Name
                     "FileName" = $variation.FileName
+                    "Job" = $variation.Job
                     "RequestsPerSecond" = $requestsPerSecond
                     "TimePerRequest" = $timePerRquest
                     "TimePerRequestConcurrent" = $timePerRequestConcurrent

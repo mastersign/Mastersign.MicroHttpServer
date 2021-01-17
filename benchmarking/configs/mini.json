@@ -13,9 +13,7 @@
             "LogToConsole": true,
             "LogWithColors": true,
             "LogLevel": "Debug",
-            "Setups": [
-                "Minimal"
-            ],
+            "Job": "Minimal",
             "Route": "/"
         }
     ]

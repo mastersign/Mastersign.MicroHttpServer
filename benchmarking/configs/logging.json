@@ -10,9 +10,7 @@
         {
             "Name": "Minimal no log",
             "FileName": "minimal",
-            "Setups": [
-                "Minimal"
-            ],
+            "Job": "Minimal",
             "Route": "/"
         },
         {
@@ -21,9 +19,7 @@
             "LogToConsole": true,
             "LogWithColors": true,
             "LogLevel": "Warning",
-            "Setups": [
-                "Minimal"
-            ],
+            "Job": "Minimal",
             "Route": "/"
         },
         {
@@ -32,9 +28,7 @@
             "LogToConsole": true,
             "LogWithColors": false,
             "LogLevel": "Verbose",
-            "Setups": [
-                "Minimal"
-            ],
+            "Job": "Minimal",
             "Route": "/"
         },
         {
@@ -43,9 +37,7 @@
             "LogToConsole": true,
             "LogWithColors": true,
             "LogLevel": "Verbose",
-            "Setups": [
-                "Minimal"
-            ],
+            "Job": "Minimal",
             "Route": "/"
         }
     ]

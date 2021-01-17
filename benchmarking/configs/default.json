@@ -13,9 +13,16 @@
             "LogToConsole": true,
             "LogWithColors": false,
             "LogLevel": "Information",
-            "Setups": [
-                "Minimal"
-            ],
+            "Job": "Minimal",
+            "Route": "/"
+        },
+        {
+            "Name": "Infrastructure",
+            "FileName": "infrastructure",
+            "LogToConsole": true,
+            "LogWithColors": false,
+            "LogLevel": "Information",
+            "Job": "Infrastructure",
             "Route": "/"
         }
     ]

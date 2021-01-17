@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 
 namespace Mastersign.MicroHttpServer.Benchmark
@@ -19,7 +18,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
 
         public bool LogToConsoleWithColors { get; }
 
-        public IList<string> Setups { get; } = new List<string>();
+        public string Job { get; }
 
         public ArgumentParser(string[] args)
         {
@@ -33,7 +32,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
                         if (p == args.Length) break;
                         if (!IPAddress.TryParse(args[p], out _host))
                         {
-                            Console.WriteLine("Invalid value for option -Host: " + args[p]);
+                            Console.Error.WriteLine("Invalid value for option -Host: " + args[p]);
                             Environment.Exit(1);
                         }
                         break;
@@ -42,7 +41,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
                         if (p == args.Length) break;
                         if (!ushort.TryParse(args[p], out _port))
                         {
-                            Console.WriteLine("Invalid value for option -Port: " + args[p]);
+                            Console.Error.WriteLine("Invalid value for option -Port: " + args[p]);
                             Environment.Exit(1);
                         }
                         break;
@@ -57,20 +56,33 @@ namespace Mastersign.MicroHttpServer.Benchmark
                         if (p == args.Length) break;
                         if (!Enum.TryParse(args[p], out _logLevel))
                         {
-                            Console.WriteLine("Invalid value for option -LogLevel: " + args[p]);
+                            Console.Error.WriteLine("Invalid value for option -LogLevel: " + args[p]);
                             Environment.Exit(1);
                         }
                         break;
                     default:
                         if (args[p].StartsWith("-"))
                         {
-                            Console.WriteLine("Unknown option or switch: " + args[p]);
+                            Console.Error.WriteLine("Unknown option or switch: " + args[p]);
                             Environment.Exit(1);
                         }
-                        Setups.Add(args[p]);
+                        else if (Job == null)
+                        {
+                            Job = args[p];
+                        }
+                        else
+                        {
+                            Console.Error.WriteLine("Only one job is accepted.");
+                            Environment.Exit(1);
+                        }
                         break;
                 }
                 p++;
+            }
+            if (Job == null)
+            {
+                Console.Error.WriteLine("You must specify at least one job.");
+                Environment.Exit(1);
             }
         }
     }
