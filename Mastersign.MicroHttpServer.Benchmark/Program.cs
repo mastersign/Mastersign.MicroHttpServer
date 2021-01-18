@@ -11,6 +11,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
         {
             var config = new ArgumentParser(args);
             Console.Title = "Mastersign Micro HTTP Server Benchmark: " + config.Job;
+            Console.WriteLine("Benchmark Job: " + config.Job);
 
             using var svr = new HttpServer();
 
