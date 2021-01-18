@@ -23,8 +23,11 @@ namespace Mastersign.MicroHttpServer
         public static IHttpServer ListenToLoopback(this IHttpServer server, int port = 8080, X509Certificate serverCertificate = null)
             => server.ListenTo(IPAddress.Loopback, port, serverCertificate);
 
-        public static IHttpServer LogToConsole(this IHttpServer server, LogLevel minLevel = LogLevel.Warning, bool withColor = true)
-            => server.Use(new ConsoleLogger(minLevel, withColor));
+        public static IHttpServer LogToConsole(this IHttpServer server,
+            LogLevel minLevel = LogLevel.Warning,
+            string timestampFormat = "yyyy-MM-dd HH:mm:ss",
+            bool withColor = true)
+            => server.Use(new ConsoleLogger(minLevel, timestampFormat, withColor));
 
     }
 }

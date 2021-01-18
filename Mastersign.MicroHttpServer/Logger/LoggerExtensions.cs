@@ -4,6 +4,9 @@ namespace Mastersign.MicroHttpServer
 {
     internal static class LoggerExtensions
     {
+        public static void Log(this ILogger logger, LogLevel level, string message, Exception e = null)
+            => logger?.Log(new LogEvent(DateTime.Now, level, message, e));
+
         public static void Fatal(this ILogger logger, string message, Exception e = null)
             => logger?.Log(LogLevel.Fatal, message, e);
 

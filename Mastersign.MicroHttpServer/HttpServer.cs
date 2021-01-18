@@ -21,18 +21,16 @@ namespace Mastersign.MicroHttpServer
 
         private bool _isActive;
 
-        public HttpServer(IHttpRequestProvider requestProvider)
+        public HttpServer(IHttpRequestProvider requestProvider = null, int logBufferCapacity = 1000)
         {
-            _logger = new AggregateLogger(_loggers);
-            _requestProvider = requestProvider;
+            _logger = new AsynchronousLogDispatcher(_loggers, boundedCapacity: logBufferCapacity);
+            _requestProvider = requestProvider ?? new HttpRequestProvider();
         }
-
-        public HttpServer() : this(new HttpRequestProvider())
-        { }
 
         public void Dispose()
         {
             _isActive = false;
+            _logger.Dispose();
         }
 
         public IHttpRoutable Use(IHttpRequestHandler handler)

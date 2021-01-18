@@ -24,50 +24,69 @@ namespace Mastersign.MicroHttpServer
             ConsoleColor.Magenta,
         };
 
-        private LogLevel MinLevel { get; set; }
+        public LogLevel MinLevel { get; set; }
 
-        private bool WithColor { get; set; }
+        public bool WithColor { get; set; }
 
-        public ConsoleLogger(LogLevel minLevel = LogLevel.Warning, bool withColor = true)
+        public string TimestampFormat { get; set; }
+
+        public ConsoleLogger(LogLevel minLevel = LogLevel.Warning, string timestampFormat = "yyyy-MM-dd HH:mm:ss", bool withColor = true)
         {
             MinLevel = minLevel;
+            TimestampFormat = timestampFormat;
             WithColor = withColor;
         }
 
-        public void Log(LogLevel level, string message, Exception e)
+        public void Dispose() { }
+
+        public void Log(LogEvent logEvent)
         {
-            Task.Run(() => InternalLog(level, message, e));
+            if (WithColor)
+                InternalLogWithColor(logEvent);
+            else
+                InternalLog(logEvent);
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        private void InternalLog(LogLevel level, string message, Exception e)
+        private void InternalLog(LogEvent logEvent)
         {
-            if (level < MinLevel) return;
-            var ts = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            var levelLabel = LevelLabels[(int)level];
-            var levelColor = LevelColors[(int)level];
+            if (logEvent.Level < MinLevel) return;
+            var levelLabel = LevelLabels[(int)logEvent.Level];
+            Console.WriteLine($"{logEvent.Timestamp.ToString(TimestampFormat)} [{levelLabel}] {logEvent.Message}");
+            if (logEvent.Exception != null)
+            {
+                Console.WriteLine(logEvent.Exception.ToString());
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        private void InternalLogWithColor(LogEvent logEvent)
+        {
+            if (logEvent.Level < MinLevel) return;
+            var levelLabel = LevelLabels[(int)logEvent.Level];
+            var levelColor = LevelColors[(int)logEvent.Level];
             if (WithColor)
             {
                 Console.ResetColor();
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
-            Console.Write(ts);
+            Console.Write(logEvent.Timestamp.ToString(TimestampFormat));
             Console.Write(" [");
             if (WithColor) Console.ForegroundColor = levelColor;
             Console.Write(levelLabel);
             if (WithColor) Console.ResetColor();
             Console.Write("] ");
-            if (WithColor && level > LogLevel.Information)
+            if (WithColor && logEvent.Level > LogLevel.Information)
             {
                 Console.ForegroundColor = ConsoleColor.White;
             }
-            Console.Write(message);
+            Console.Write(logEvent.Message);
             if (WithColor) Console.ResetColor();
             Console.WriteLine();
-            if (e != null)
+            if (logEvent.Exception != null)
             {
                 if (WithColor) Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(e.ToString());
+                Console.WriteLine(logEvent.Exception.ToString());
                 if (WithColor) Console.ResetColor();
             }
         }

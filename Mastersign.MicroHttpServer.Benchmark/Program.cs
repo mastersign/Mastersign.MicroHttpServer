@@ -28,7 +28,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
 
             if (config.LogToConsole)
             {
-                svr.LogToConsole(config.LogLevel, config.LogToConsoleWithColors);
+                svr.LogToConsole(minLevel: config.LogLevel, withColor: config.LogToConsoleWithColors);
             }
             svr.ListenTo(config.Host, config.Port);
             svr.Start();

@@ -2,8 +2,10 @@
 
 namespace Mastersign.MicroHttpServer
 {
-    public interface ILogger
+    public interface ILogger : IDisposable
     {
-        void Log(LogLevel level, string message, Exception e = null);
+        LogLevel MinLevel { get; set; }
+
+        void Log(LogEvent logEvent);
     }
 }
