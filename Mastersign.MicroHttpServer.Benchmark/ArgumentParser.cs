@@ -8,7 +8,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
         private IPAddress _host = IPAddress.Loopback;
         public IPAddress Host => _host;
 
-        private ushort _port;
+        private ushort _port = 8080;
         public int Port => _port;
 
         private LogLevel _logLevel = LogLevel.Verbose;
