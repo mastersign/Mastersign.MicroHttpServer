@@ -18,7 +18,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
 
         public bool LogToConsoleWithColors { get; }
 
-        private int _logBuffer;
+        private int _logBuffer = 1000;
         public int LogBuffer => _logBuffer;
 
         public string Job { get; }
