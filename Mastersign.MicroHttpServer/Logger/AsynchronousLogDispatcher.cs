@@ -15,10 +15,10 @@ namespace Mastersign.MicroHttpServer
 
         public LogLevel MinLevel { get; set; }
 
-        public AsynchronousLogDispatcher(IList<ILogger> loggers, int boundedCapacity = 1000, LogLevel minLevel = LogLevel.Verbose)
+        public AsynchronousLogDispatcher(IList<ILogger> loggers, int bufferSize = 1000, LogLevel minLevel = LogLevel.Verbose)
         {
             _loggers = loggers;
-            _events = new BlockingCollection<LogEvent>(new ConcurrentQueue<LogEvent>(), boundedCapacity);
+            _events = new BlockingCollection<LogEvent>(new ConcurrentQueue<LogEvent>(), bufferSize);
 
             MinLevel = minLevel;
 

@@ -13,7 +13,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
             Console.Title = "Mastersign Micro HTTP Server Benchmark: " + config.Job;
             Console.WriteLine("Benchmark Job: " + config.Job);
 
-            using var svr = new HttpServer();
+            using var svr = new HttpServer(logBuffer: config.LogBuffer);
 
             if (Jobs.TryGetValue(config.Job, out var jobMethod))
             {

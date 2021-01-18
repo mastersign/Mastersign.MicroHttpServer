@@ -21,9 +21,11 @@ namespace Mastersign.MicroHttpServer
 
         private bool _isActive;
 
-        public HttpServer(IHttpRequestProvider requestProvider = null, int logBufferCapacity = 1000)
+        public HttpServer(IHttpRequestProvider requestProvider = null, LogLevel minLogLevel = LogLevel.Verbose, int logBuffer = 1000)
         {
-            _logger = new AsynchronousLogDispatcher(_loggers, boundedCapacity: logBufferCapacity);
+            _logger = new AsynchronousLogDispatcher(_loggers, 
+                minLevel: minLogLevel,
+                bufferSize: logBuffer);
             _requestProvider = requestProvider ?? new HttpRequestProvider();
         }
 

@@ -6,7 +6,7 @@ namespace Mastersign.MicroHttpServer.Demo
     {
         static void Main(string[] args)
         {
-            using var svr = new HttpServer(logBufferCapacity: 10000)
+            using var svr = new HttpServer()
                 .LogToConsole(LogLevel.Debug)
                 .ListenToLoopback();
 

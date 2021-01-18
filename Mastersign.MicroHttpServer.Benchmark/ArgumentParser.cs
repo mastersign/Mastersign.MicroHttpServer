@@ -18,6 +18,9 @@ namespace Mastersign.MicroHttpServer.Benchmark
 
         public bool LogToConsoleWithColors { get; }
 
+        private int _logBuffer;
+        public int LogBuffer => _logBuffer;
+
         public string Job { get; }
 
         public ArgumentParser(string[] args)
@@ -57,6 +60,15 @@ namespace Mastersign.MicroHttpServer.Benchmark
                         if (!Enum.TryParse(args[p], out _logLevel))
                         {
                             Console.Error.WriteLine("Invalid value for option -LogLevel: " + args[p]);
+                            Environment.Exit(1);
+                        }
+                        break;
+                    case "-LogBuffer":
+                        p++;
+                        if (p == args.Length) break;
+                        if (!int.TryParse(args[p], out _logBuffer))
+                        {
+                            Console.Error.WriteLine("Invalid value for option -LogBuffer: " + args[p]);
                             Environment.Exit(1);
                         }
                         break;
