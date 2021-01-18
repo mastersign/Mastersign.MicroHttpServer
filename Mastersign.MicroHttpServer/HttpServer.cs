@@ -17,7 +17,8 @@ namespace Mastersign.MicroHttpServer
         private readonly HttpRoutingPipeline _pipeline = new HttpRoutingPipeline();
 
         public int BufferSize { get; set; } = 1024 * 8;
-        public int PostStreamLimit { get; set; } = 1024 * 1024;
+        public int RequestStreamLimit { get; set; } = 1024 * 1024;
+        public int ResponseStreamLimit { get; set; } = -1;
 
         private bool _isActive;
 
@@ -93,13 +94,14 @@ namespace Mastersign.MicroHttpServer
             {
                 try
                 {
-                    new HttpClientHandler(
-                        await listener.GetClient().ConfigureAwait(false),
-                        pipelineHandler,
+                    var client = await listener.GetClient().ConfigureAwait(false);
+
+                    new HttpClientHandler(client, pipelineHandler,
                         _requestProvider,
                         _logger,
                         BufferSize,
-                        PostStreamLimit);
+                        RequestStreamLimit,
+                        ResponseStreamLimit);
                 }
                 catch (Exception e)
                 {

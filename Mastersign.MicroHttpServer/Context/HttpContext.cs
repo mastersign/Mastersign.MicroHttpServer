@@ -9,13 +9,13 @@ namespace Mastersign.MicroHttpServer
     {
         private readonly ExpandoObject _state = new ExpandoObject();
 
-        public HttpContext(ILogger logger, IHttpRequest request, EndPoint remoteEndPoint)
+        public HttpContext(ILogger logger, EndPoint remoteEndPoint, IHttpRequest request)
         {
             Logger = logger;
+            RemoteEndPoint = remoteEndPoint;
             Request = request;
             Route = request.Url.AbsolutePath.TrimStart('/');
             RouteParameters = EmptyStringLookup.Instance;
-            RemoteEndPoint = remoteEndPoint;
             Cookies = new CookiesStorage(Request.Headers.GetByNameOrDefault("Cookie", string.Empty));
         }
 

@@ -10,6 +10,7 @@ namespace Mastersign.MicroHttpServer
     {
         private const int DEFAULT_REQUEST_BUFFER_SIZE = 1024 * 8;
         private const int DEFAULT_REQUEST_STREAM_LIMIT = 1024 * 1024;
+        private const int DEFAULT_RESPONSE_STREAM_LIMIT = -1;
         private const int RESPONSE_HEADER_BUFFER_SIZE = 1024;
 
         private readonly ILogger _logger;
@@ -17,26 +18,29 @@ namespace Mastersign.MicroHttpServer
         private readonly Func<IHttpContext, Task> _requestHandler;
         private readonly IHttpRequestProvider _requestProvider;
         private readonly Stream _stream;
-        private readonly int _postStreamLimit;
+        private readonly int _readLimit;
+        private readonly int _writeLimit;
 
         public IClient Client { get; }
 
         public DateTime LastOperationTime { get; private set; }
 
         public HttpClientHandler(
-            IClient client, 
+            IClient client,
             Func<IHttpContext, Task> requestHandler,
             IHttpRequestProvider requestProvider,
             ILogger logger = null,
             int requestBufferSize = DEFAULT_REQUEST_BUFFER_SIZE,
-            int requestStreamLimit = DEFAULT_REQUEST_STREAM_LIMIT)
+            int requestStreamLimit = DEFAULT_REQUEST_STREAM_LIMIT,
+            int responseStreamLimit = DEFAULT_RESPONSE_STREAM_LIMIT)
         {
-            _remoteEndPoint = client.RemoteEndPoint;
             Client = client;
+            _remoteEndPoint = client.RemoteEndPoint;
             _requestHandler = requestHandler;
             _requestProvider = requestProvider;
             _logger = logger;
-            _postStreamLimit = requestStreamLimit;
+            _readLimit = requestStreamLimit;
+            _writeLimit = responseStreamLimit;
 
             _stream = new BufferedStream(Client.Stream, requestBufferSize);
 
@@ -53,7 +57,7 @@ namespace Mastersign.MicroHttpServer
             {
                 while (Client.Connected)
                 {
-                    var limitedStream = new NotFlushingStream(new LimitedStream(_stream, _postStreamLimit, _postStreamLimit));
+                    var limitedStream = new NotFlushingStream(new LimitedStream(_stream, _readLimit, _writeLimit));
 
                     var request = await _requestProvider.Provide(limitedStream).ConfigureAwait(false);
 
@@ -61,7 +65,7 @@ namespace Mastersign.MicroHttpServer
                     {
                         UpdateLastOperationTime();
 
-                        var context = new HttpContext(_logger, request, Client.RemoteEndPoint);
+                        var context = new HttpContext(_logger, Client.RemoteEndPoint, request);
                         var url = request.Url;
 
                         _logger.Debug($"{Client.RemoteEndPoint} : {request.Method.ToString().ToUpperInvariant()} {url.PathAndQuery}");

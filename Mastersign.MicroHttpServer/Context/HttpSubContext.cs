@@ -25,6 +25,8 @@ namespace Mastersign.MicroHttpServer
         private readonly IStringLookup _routeParameters;
         public IStringLookup RouteParameters => _routeParameters ?? _parent.RouteParameters;
 
+        public EndPoint RemoteEndPoint => _parent.RemoteEndPoint;
+
         public ILogger Logger => _parent.Logger;
 
         public IHttpRequest Request => _parent.Request;
@@ -32,11 +34,9 @@ namespace Mastersign.MicroHttpServer
         public IHttpResponse Response { 
             get => _parent.Response;
             set => _parent.Response = value;
-        }
+    }
 
-        public ICookiesStorage Cookies => _parent.Cookies;
-
-        public EndPoint RemoteEndPoint => _parent.RemoteEndPoint;
+    public ICookiesStorage Cookies => _parent.Cookies;
 
         public dynamic State => _parent.State;
 
