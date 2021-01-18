@@ -1,5 +1,6 @@
 {
     "Requests": 50000,
+    "WarmUpRequests": 1000,
     "Concurrency": 16,
     "RequestTimeout": 2,
     "Host": "127.0.0.1",

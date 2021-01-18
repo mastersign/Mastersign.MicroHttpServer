@@ -1,5 +1,6 @@
 {
     "Requests": 50000,
+    "WarmUpRequests": 1000,
     "Concurrency": 16,
     "RequestTimeout": 2,
     "Host": "127.0.0.1",
@@ -8,17 +9,11 @@
     "Frameworks": ["net5.0"],
     "Variations": [
         {
-            "Name": "Minimal no log",
-            "FileName": "minimal",
-            "Job": "Minimal",
-            "Route": "/"
-        },
-        {
-            "Name": "Minimal log Warning",
-            "FileName": "minimal-log_wrn",
+            "Name": "Minimal log Verbose with colors",
+            "FileName": "minimal-log_vrb_clr",
             "LogToConsole": true,
             "LogWithColors": true,
-            "LogLevel": "Warning",
+            "LogLevel": "Verbose",
             "Job": "Minimal",
             "Route": "/"
         },
@@ -32,11 +27,18 @@
             "Route": "/"
         },
         {
-            "Name": "Minimal log Verbose with colors",
-            "FileName": "minimal-log_vrb_clr",
+            "Name": "Minimal no log",
+            "FileName": "minimal",
+            "LogToConsole": false,
+            "Job": "Minimal",
+            "Route": "/"
+        },
+        {
+            "Name": "Minimal log Warning",
+            "FileName": "minimal-log_wrn",
             "LogToConsole": true,
             "LogWithColors": true,
-            "LogLevel": "Verbose",
+            "LogLevel": "Warning",
             "Job": "Minimal",
             "Route": "/"
         }

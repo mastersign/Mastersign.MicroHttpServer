@@ -2,12 +2,16 @@ param (
     $ConfigFile = "$(Split-Path $MyInvocation.MyCommand.Definition -Parent)\configs\default.json",
     $ProjectFile = "$(Split-Path $MyInvocation.MyCommand.Definition -Parent)\..\Mastersign.MicroHttpServer.Benchmark\Mastersign.MicroHttpServer.Benchmark.csproj",
     [switch]$NoBuild,
+    [switch]$NoServerStart,
+    [switch]$NoWarmUp,
     [switch]$GridView
 )
 $config = Get-Content $ConfigFile | ConvertFrom-Json
 
 $thisDir = Split-Path $MyInvocation.MyCommand.Definition -Parent
 $resultBaseDir = "$thisDir\results"
+
+$ErrorActionPreference = "Stop"
 
 if (!(Test-Path $resultBaseDir)) { mkdir $resultBaseDir | Out-Null }
 
@@ -26,7 +30,7 @@ function ParseDouble($text, $prefix, $suffix) {
 Push-Location "$thisDir\.."
 try {
 
-    if (!$NoBuild) {
+    if (!$NoBuild -and !$NoServerStart) {
         foreach ($framework in $config.Frameworks) {
             foreach ($buildConfiguration in $config.Configurations) {
                 Write-Host "Building $buildConfiguration for $framework..."
@@ -36,7 +40,11 @@ try {
                     "-c", $buildConfiguration
                     $ProjectFile
                 )
-                Start-Process "dotnet" $dotnetArgs -Wait
+                $buildProc = Start-Process "dotnet" $dotnetArgs -PassThru
+                $buildProc.WaitForExit()
+                if ($buildProc.ExitCode -ne 0) {
+                    Write-Error "Build failed"
+                }
             }
         }
     }
@@ -81,33 +89,61 @@ try {
                         $serverArgs += "-LogWithColors"
                     }
                 }
-                if ($variations.Job) {
+                if ($variation.Job) {
                     $serverArgs += $variation.Job
                 } else {
                     $serverArgs += $variation.Name
                 }
 
-                Write-Host "    Command Line: dotnet $([string]::Join(" ", $serverArgs))"
+                $serverProc = $null
+                if (!$NoServerStart) {
+                    Write-Host "    Command Line: dotnet $([string]::Join(" ", $serverArgs))"
 
-                $serverProc = Start-Process "dotnet" $serverArgs -PassThru
-                try {
+                    $serverProc = Start-Process "dotnet" $serverArgs -PassThru
                     [Threading.Thread]::Sleep([TimeSpan]::FromSeconds(2))
+                    if ($serverProc.HasExited) {
+                        Write-Error "Server process has exited, before the benchmark was executed."
+                    }
+                }
 
+                try {
+
+                    if (!$NoWarmUp) {
+                        # Warm up
+                        $abArgs = @(
+                            "-n", $config.WarmUpRequests
+                            "-c", $config.Concurrency
+                            "-s", $config.RequestTimeout
+                            "http://$($config.Host):$($config.Port)$($variation.Route)"
+                        )
+                        $abProc = Start-Process "ab" $abArgs -PassThru
+                        $abProc.WaitForExit()
+                        if ($abProc.ExitCode -ne 0) {
+                            Write-Error "Apache Benchmark did not exit cleanly. Exit code: $($abProc.ExitCode)"
+                        }
+                    }
+
+                    # Actual test
                     $abArgs = @(
                         "-n", $config.Requests
                         "-c", $config.Concurrency
-                        "-k"                         # keep alive
-                        "-s", "2"                    # timeout for each request in seconds
+                        "-k"  # keep alive
+                        "-s", $config.RequestTimeout
                         "-g", "${fileBase}.gnuplot"
                         "-e", "${fileBase}.csv"
                         "http://$($config.Host):$($config.Port)$($variation.Route)"
                     )
-
-                    Start-Process "ab" $abArgs -NoNewWindow -Wait -RedirectStandardOutput "${fileBase}.txt"
+                    $abProc = Start-Process "ab" $abArgs -NoNewWindow -RedirectStandardOutput "${fileBase}.txt" -PassThru
+                    $abProc.WaitForExit()
+                    if ($abProc.ExitCode -ne 0) {
+                        Write-Error "Apache Benchmark did not exit cleanly. Exit code: $($abProc.ExitCode)"
+                    }
 
                 } finally {
-                    $serverProc.Kill()
-                    $serverProc.WaitForExit()
+                    if ($serverProc -and !$serverProc.HasExited) {
+                        $serverProc.Kill()
+                        $serverProc.WaitForExit()
+                    }
                 }
 
                 $abResultText = [IO.File]::ReadAllText("${fileBase}.txt", [Text.Encoding]::UTF8)

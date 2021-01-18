@@ -1,7 +1,8 @@
 {
     "Requests": 10000,
+    "WarmUpRequests": 1000,
     "Concurrency": 50,
-    "RequestTimeout": 2,
+    "RequestTimeout": 10,
     "Host": "127.0.0.1",
     "Port": 8080,
     "Configurations": ["Release"],
@@ -9,10 +10,10 @@
     "Variations": [
         {
             "Name": "Minimal log debug",
-            "FileName": "minimal-log_debug",
+            "FileName": "uhttpsharp",
             "LogToConsole": true,
             "LogWithColors": true,
-            "LogLevel": "Debug",
+            "LogLevel": "Information",
             "Job": "Minimal",
             "Route": "/"
         }
