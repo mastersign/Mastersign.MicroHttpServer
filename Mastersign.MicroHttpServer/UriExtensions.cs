@@ -6,7 +6,7 @@ namespace Mastersign.MicroHttpServer
     {
         private static readonly char[] SEPARATORS = { '/' };
 
-        public static string[] GetPathSegments(this Uri uri)
+        internal static string[] GetPathSegments(this Uri uri)
             => uri.AbsolutePath.Split(SEPARATORS, StringSplitOptions.RemoveEmptyEntries);
     }
 }
