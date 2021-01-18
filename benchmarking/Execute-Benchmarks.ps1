@@ -135,9 +135,6 @@ try {
                     )
                     $abProc = Start-Process "ab" $abArgs -NoNewWindow -RedirectStandardOutput "${fileBase}.txt" -PassThru
                     $abProc.WaitForExit()
-                    if ($abProc.ExitCode -ne 0) {
-                        Write-Error "Apache Benchmark did not exit cleanly. Exit code: $($abProc.ExitCode)"
-                    }
 
                 } finally {
                     if ($serverProc -and !$serverProc.HasExited) {
