@@ -2,12 +2,16 @@
 {
     public interface IHttpRoutable
     {
+        string Name { get; }
+
         IHttpRoutable Use(IHttpRequestHandler handler);
 
         IHttpRoutable UseWhen(IHttpRouteCondition condition, IHttpRequestHandler handler);
 
-        IHttpRoutable Dive(IHttpRouteCondition condition);
+        IHttpRoutable Branch(IHttpRouteCondition condition, string name = "branch");
 
-        IHttpRoutable Ascent(IHttpRequestHandler fallback = null);
+        IHttpRoutable EndWith(IHttpRequestHandler fallback);
+
+        IHttpRoutable Merge();
     }
 }

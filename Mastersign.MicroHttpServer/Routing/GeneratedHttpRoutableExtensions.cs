@@ -25,35 +25,35 @@ namespace Mastersign.MicroHttpServer
 
         #endregion
 
-        #region Dive
+        #region Branch
 
-        public static IHttpRoutable Dive(this IHttpRoutable r, HttpMethod httpMethod)
-            => r.Dive(new HttpMethodCondition(httpMethod));
-        public static IHttpRoutable DiveRegex(this IHttpRoutable r, string regex)
-            => r.Dive(new RegexRouteCondition(null, regex));
-        public static IHttpRoutable DiveRegex(this IHttpRoutable r, HttpMethod httpMethod, string regex)
-            => r.Dive(new RegexRouteCondition(httpMethod, regex));
-        public static IHttpRoutable Dive(this IHttpRoutable r, string pattern)
-            => r.Dive(RegexRouteCondition.FromRoutePattern(null, pattern));
-        public static IHttpRoutable Dive(this IHttpRoutable r, HttpMethod httpMethod, string pattern)
-            => r.Dive(RegexRouteCondition.FromRoutePattern(httpMethod, pattern));
+        public static IHttpRoutable Branch(this IHttpRoutable r, HttpMethod httpMethod)
+            => r.Branch(new HttpMethodCondition(httpMethod));
+        public static IHttpRoutable BranchRegex(this IHttpRoutable r, string regex)
+            => r.Branch(new RegexRouteCondition(null, regex));
+        public static IHttpRoutable BranchRegex(this IHttpRoutable r, HttpMethod httpMethod, string regex)
+            => r.Branch(new RegexRouteCondition(httpMethod, regex));
+        public static IHttpRoutable Branch(this IHttpRoutable r, string pattern)
+            => r.Branch(RegexRouteCondition.FromRoutePattern(null, pattern));
+        public static IHttpRoutable Branch(this IHttpRoutable r, HttpMethod httpMethod, string pattern)
+            => r.Branch(RegexRouteCondition.FromRoutePattern(httpMethod, pattern));
 
         #endregion
 
-        #region Ascent
+        #region EndWith
 
-        public static IHttpRoutable Ascent(this IHttpRoutable r, Func<IHttpContext, Func<Task>, Task> handler)
-            => r.Ascent(new AnonymousHttpRequestHandler(handler));
-        public static IHttpRoutable Ascent(this IHttpRoutable r, Func<IHttpContext, IHttpResponse> responseGenerator)
-            => r.Ascent((ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
-        public static IHttpRoutable Ascent(this IHttpRoutable r, Func<IHttpContext, string> contentGenerator, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.Ascent(new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
-        public static IHttpRoutable Ascent(this IHttpRoutable r, Func<IHttpContext, byte[]> contentGenerator, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.Ascent(new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
-        public static IHttpRoutable Ascent(this IHttpRoutable r, string text, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.Ascent(new ConstStringHttpRequestHandler(text, contentType: contentType));
-        public static IHttpRoutable Ascent(this IHttpRoutable r, byte[] data, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.Ascent(new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
+        public static IHttpRoutable EndWith(this IHttpRoutable r, Func<IHttpContext, Func<Task>, Task> handler)
+            => r.EndWith(new AnonymousHttpRequestHandler(handler));
+        public static IHttpRoutable EndWith(this IHttpRoutable r, Func<IHttpContext, IHttpResponse> responseGenerator)
+            => r.EndWith((ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
+        public static IHttpRoutable EndWith(this IHttpRoutable r, Func<IHttpContext, string> contentGenerator, string contentType = DEFAULT_STRING_MIMETYPE)
+            => r.EndWith(new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
+        public static IHttpRoutable EndWith(this IHttpRoutable r, Func<IHttpContext, byte[]> contentGenerator, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
+            => r.EndWith(new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
+        public static IHttpRoutable EndWith(this IHttpRoutable r, string text, string contentType = DEFAULT_STRING_MIMETYPE)
+            => r.EndWith(new ConstStringHttpRequestHandler(text, contentType: contentType));
+        public static IHttpRoutable EndWith(this IHttpRoutable r, byte[] data, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
+            => r.EndWith(new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
 
         #endregion
 

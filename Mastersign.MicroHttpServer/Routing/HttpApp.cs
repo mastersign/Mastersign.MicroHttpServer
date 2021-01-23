@@ -4,14 +4,24 @@ using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
-    internal sealed class HttpRouted : IHttpRoutable, IHttpRequestHandler
+    [DebuggerDisplay("HttpApp: Name = {Name}")]
+    public sealed class HttpApp : IHttpRoutable, IHttpRequestHandler
     {
         private readonly HttpRoutingPipeline _pipeline = new HttpRoutingPipeline();
         private readonly IHttpRoutable _parent;
 
-        public HttpRouted(IHttpRoutable parent)
+        public string Name { get; }
+
+        public HttpApp(string name = "app") 
+        {
+            _parent = null;
+            Name = name;
+        }
+
+        internal HttpApp(IHttpRoutable parent, string name)
         {
             _parent = parent;
+            Name = name;
         }
 
         public IHttpRoutable Use(IHttpRequestHandler handler)
@@ -26,19 +36,22 @@ namespace Mastersign.MicroHttpServer
             return this;
         }
 
-        public IHttpRoutable Dive(IHttpRouteCondition condition)
+        public IHttpRoutable Branch(IHttpRouteCondition condition, string name = "branch")
         {
-            var routed = new HttpRouted(this);
+            var routed = new HttpApp(this, name);
             _pipeline.PushConditional(condition, routed, () => new HttpRouter());
             return routed;
         }
 
-        public IHttpRoutable Ascent(IHttpRequestHandler fallback = null)
+        public IHttpRoutable EndWith(IHttpRequestHandler fallback)
         {
-            if (fallback != null)
-            {
-                _pipeline.PushUnconditional(fallback);
-            }
+            _pipeline.PushUnconditional(fallback);
+            return _parent;
+        }
+
+        public IHttpRoutable Merge()
+        {
+            if (_parent == null) throw new InvalidOperationException("This routing branch has no parent.");
             return _parent;
         }
 

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Mastersign.MicroHttpServer.Test")]
 
 namespace Mastersign.MicroHttpServer
 {
+    [DebuggerDisplay("HttpServer: Name = {Name}")]
     public sealed class HttpServer : IDisposable, IHttpServer
     {
         private readonly IList<IHttpListener> _listeners = new List<IHttpListener>();
@@ -16,14 +18,21 @@ namespace Mastersign.MicroHttpServer
 
         private readonly HttpRoutingPipeline _pipeline = new HttpRoutingPipeline();
 
+        public string Name { get; }
+
         public int BufferSize { get; set; } = 1024 * 8;
         public int RequestStreamLimit { get; set; } = 1024 * 1024;
         public int ResponseStreamLimit { get; set; } = -1;
 
         private bool _isActive;
 
-        public HttpServer(IHttpRequestProvider requestProvider = null, LogLevel minLogLevel = LogLevel.Verbose, int logBuffer = 1000)
+        public HttpServer(
+            string name = "server",
+            IHttpRequestProvider requestProvider = null,
+            LogLevel minLogLevel = LogLevel.Verbose, 
+            int logBuffer = 1000)
         {
+            Name = name;
             _logger = new AsynchronousLogDispatcher(_loggers, 
                 minLevel: minLogLevel,
                 bufferSize: logBuffer);
@@ -48,16 +57,22 @@ namespace Mastersign.MicroHttpServer
             return this;
         }
 
-        public IHttpRoutable Dive(IHttpRouteCondition condition)
+        public IHttpRoutable Branch(IHttpRouteCondition condition, string name = "branch")
         {
-            var routed = new HttpRouted(this);
+            var routed = new HttpApp(this, name);
             _pipeline.PushConditional(condition, routed, () => new HttpRouter());
             return routed;
         }
 
-        public IHttpRoutable Ascent(IHttpRequestHandler fallback = null)
+        public IHttpRoutable EndWith(IHttpRequestHandler fallback)
         {
-            throw new NotSupportedException("You can not ascent from the routing context of the server");
+            _pipeline.PushUnconditional(fallback);
+            return null;
+        }
+
+        public IHttpRoutable Merge()
+        {
+            throw new InvalidOperationException("The server has no parent.");
         }
 
         public IHttpServer Use(IHttpListener listener)

@@ -24,20 +24,20 @@ namespace Mastersign.MicroHttpServer
 
         #endregion
 
-        #region Dive
+        #region Branch
 
 <# foreach (var condition in Conditions) { if (condition.PassThrough) continue; #>
-        public static IHttpRoutable Dive<#= condition.MethodSuffix #>(this IHttpRoutable r, <#= condition.Arguments #>)
-            => r.Dive(<#= condition.Application #>);
+        public static IHttpRoutable Branch<#= condition.MethodSuffix #>(this IHttpRoutable r, <#= condition.Arguments #>)
+            => r.Branch(<#= condition.Application #>);
 <# } #>
 
         #endregion
 
-        #region Ascent
+        #region EndWith
 
 <# foreach (var response in Responses) { if (response.PassThrough) continue; #>
-        public static IHttpRoutable Ascent(this IHttpRoutable r, <#= response.Arguments #>)
-            => r.Ascent(<#= response.Application #>);
+        public static IHttpRoutable EndWith(this IHttpRoutable r, <#= response.Arguments #>)
+            => r.EndWith(<#= response.Application #>);
 <# } #>
 
         #endregion
