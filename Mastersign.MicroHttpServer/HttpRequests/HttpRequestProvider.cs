@@ -43,9 +43,8 @@ namespace Mastersign.MicroHttpServer
             while (!string.IsNullOrEmpty(line = await streamReader.ReadLineAsync().ConfigureAwait(false)))
             {
                 var currentLine = line;
-
                 var headerKvp = SplitHeader(currentLine);
-                headersRaw.Add(headerKvp);
+                if (headerKvp.HasValue) headersRaw.Add(headerKvp.Value);
             }
             var headers = headersRaw.ToStringLookup();
 
@@ -56,10 +55,12 @@ namespace Mastersign.MicroHttpServer
             return new HttpRequest(httpMethod, uri, httpProtocol, headers, contentStream);
         }
 
-        private KeyValuePair<string, string> SplitHeader(string header)
+        private KeyValuePair<string, string>? SplitHeader(string header)
         {
             var index = header.IndexOf(": ", StringComparison.Ordinal);
-            return new KeyValuePair<string, string>(header.Substring(0, index), header.Substring(index + 2));
+            return index > 0
+                ? new KeyValuePair<string, string>(header.Substring(0, index), header.Substring(index + 2))
+                : (KeyValuePair<string, string>?)null;
         }
     }
 }
