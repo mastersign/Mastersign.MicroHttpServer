@@ -30,7 +30,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
             {
                 svr.LogToConsole(minLevel: config.LogLevel, withColor: config.LogToConsoleWithColors);
             }
-            svr.ListenTo(config.Host, config.Port);
+            svr.ListenTo(config.Host, config.Port, noDelay: config.NoDelay);
             svr.Start();
 
             Console.WriteLine("Press ESC to stop...");

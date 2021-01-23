@@ -7,15 +7,20 @@ namespace Mastersign.MicroHttpServer
     {
         private readonly TcpListener _listener;
 
-        public TcpListenerAdapter(TcpListener listener)
+        public bool NoDelay { get; set; }
+
+        public TcpListenerAdapter(TcpListener listener, bool noDelay = false)
         {
+            NoDelay = noDelay;
             _listener = listener;
             _listener.Start();
         }
 
         public async Task<IClient> GetClient()
         {
-            return new TcpClientAdapter(await _listener.AcceptTcpClientAsync().ConfigureAwait(false));
+            var client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false);
+            client.NoDelay = NoDelay;
+            return new TcpClientAdapter(client);
         }
     }
 }

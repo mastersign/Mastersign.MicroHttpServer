@@ -14,6 +14,7 @@
             "LogToConsole": true,
             "LogWithColors": true,
             "LogLevel": "Information",
+            "NoDelay": true,
             "Job": "Minimal",
             "Route": "/"
         }

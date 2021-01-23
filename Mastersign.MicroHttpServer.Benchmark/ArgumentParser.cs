@@ -21,6 +21,8 @@ namespace Mastersign.MicroHttpServer.Benchmark
         private int _logBuffer = 1000;
         public int LogBuffer => _logBuffer;
 
+        public bool NoDelay { get; }
+
         public string Job { get; }
 
         public ArgumentParser(string[] args)
@@ -71,6 +73,9 @@ namespace Mastersign.MicroHttpServer.Benchmark
                             Console.Error.WriteLine("Invalid value for option -LogBuffer: " + args[p]);
                             Environment.Exit(1);
                         }
+                        break;
+                    case "-NoDelay":
+                        NoDelay = true;
                         break;
                     default:
                         if (args[p].StartsWith("-"))

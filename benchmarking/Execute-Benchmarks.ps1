@@ -89,6 +89,9 @@ try {
                         $serverArgs += "-LogWithColors"
                     }
                 }
+                if ($variation.NoDelay) {
+                    $serverArgs += "-NoDelay"
+                }
                 if ($variation.Job) {
                     $serverArgs += $variation.Job
                 } else {
