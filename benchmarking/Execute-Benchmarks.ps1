@@ -27,6 +27,25 @@ function ParseDouble($text, $prefix, $suffix) {
     }
 }
 
+function ObjectKeys($o) {
+    if (!$o) { return }
+    if ($o.Keys) { return $o.Keys }
+    if ($o.Properties) { return $o.Properties | ForEach-Object { $_.Name } }
+    if ($o.PSObject.Properties) { return $o.PSObject.Properties | ForEach-Object { $_.Name } }
+}
+function ObjectValue($o, $key) {
+    if (!$o) { return }
+    if ($o.Keys) { return $o[$key] }
+    if ($o.Properties) {
+        $prop = $o.Properties | Where-Object "Name" -EQ $key
+        return $prop.Value
+    }
+    if ($o.PSObject.Properties) {
+        $prop = $o.PSObject.Properties | Where-Object "Name" -EQ $key
+        return $prop.Value
+    }
+}
+
 Push-Location "$thisDir\.."
 try {
 
@@ -114,11 +133,17 @@ try {
                     if (!$NoWarmUp) {
                         # Warm up
                         $abArgs = @(
-                            "-n", $config.WarmUpRequests
                             "-c", $config.Concurrency
                             "-s", $config.RequestTimeout
-                            "http://$($config.Host):$($config.Port)$($variation.Route)"
+                            "-n", $config.WarmUpRequests
                         )
+                        if ($config.KeepAlive) { $abArgs += "-k" }
+                        foreach ($key in (ObjectKeys $config.Headers)) {
+                            $value = ObjectValue $config.Headers $key
+                            $abArgs += "-H"
+                            $abArgs += "`"${key}: ${value}`""
+                        }
+                        $abArgs += "http://$($config.Host):$($config.Port)$($variation.Route)"
                         $abProc = Start-Process "ab" $abArgs -PassThru
                         $abProc.WaitForExit()
                         if ($abProc.ExitCode -ne 0) {
@@ -128,14 +153,20 @@ try {
 
                     # Actual test
                     $abArgs = @(
-                        "-n", $config.Requests
                         "-c", $config.Concurrency
-                        "-k"  # keep alive
                         "-s", $config.RequestTimeout
+                        "-n", $config.Requests
                         "-g", "${fileBase}.gnuplot"
                         "-e", "${fileBase}.csv"
-                        "http://$($config.Host):$($config.Port)$($variation.Route)"
                     )
+                    if ($config.KeepAlive) { $abArgs += "-k" }
+                    foreach ($key in (ObjectKeys $config.Headers)) {
+                        $value = ObjectValue $config.Headers $key
+                        $abArgs += "-H"
+                        $abArgs += "`"${key}: ${value}`""
+                    }
+                    $abArgs += "http://$($config.Host):$($config.Port)$($variation.Route)"
+                    Write-Host "    Command Line: ab $([string]::Join(" ", $abArgs))"
                     $abProc = Start-Process "ab" $abArgs -NoNewWindow -RedirectStandardOutput "${fileBase}.txt" -PassThru
                     $abProc.WaitForExit()
 

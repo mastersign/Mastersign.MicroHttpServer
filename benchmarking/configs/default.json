@@ -5,6 +5,11 @@
     "RequestTimeout": 2,
     "Host": "127.0.0.1",
     "Port": 8080,
+    "KeepAlive": true,
+    "Headers": {
+        "Accept-Encoding": "gzip",
+        "Accept-Type": "*/*"
+    },
     "Configurations": ["Release"],
     "Frameworks": ["net5.0"],
     "Variations": [

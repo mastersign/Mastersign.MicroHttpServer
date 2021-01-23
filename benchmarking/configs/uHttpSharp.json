@@ -5,6 +5,9 @@
     "RequestTimeout": 10,
     "Host": "127.0.0.1",
     "Port": 8080,
+    "Headers": {
+    },
+    "KeepAlive": true,
     "Configurations": ["Release"],
     "Frameworks": ["net5.0"],
     "Variations": [
