@@ -49,7 +49,7 @@ namespace Mastersign.MicroHttpServer
         public static IHttpRoutable UseWhen<#= condition.MethodSuffix #>(this IHttpRoutable r,
             <#= condition.Arguments != null ? condition.Arguments + ", " : "" #>
             <#= response.Arguments #>)
-            => r.UseWhen(<#= condition.Application #>, <#= response.Application #>);
+            => r.UseWhen(<#= condition.FinalApplication ?? condition.Application #>, <#= response.Application #>);
 <#     } #>
 
         #endregion

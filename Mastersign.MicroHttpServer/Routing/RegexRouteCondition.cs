@@ -24,7 +24,7 @@ namespace Mastersign.MicroHttpServer
             // force the regex to start at the beginning
             if (!regex.StartsWith("^")) regex = "^" + regex;
 
-            if (rightOpen) regex.TrimEnd('$');
+            regex.TrimEnd('$');
 
             if (rightOpen && !regex.EndsWith("/") && !regex.EndsWith("(/|$)"))
             {
@@ -32,7 +32,11 @@ namespace Mastersign.MicroHttpServer
             }
 
             // force the regex to anchor at the end
-            if (!rightOpen && !regex.EndsWith("$")) regex += "$";
+            if (!rightOpen)
+            {
+                if (!regex.EndsWith("/") && !regex.EndsWith("/?")) regex += "/?";
+                regex += "$";
+            }
 
             var options = RegexOptions.Compiled
                 | RegexOptions.ExplicitCapture
@@ -50,12 +54,12 @@ namespace Mastersign.MicroHttpServer
 
         internal static string RegexPatternFromRoutePattern(string pattern)
         {
-            pattern = pattern.TrimStart('/');
+            pattern = pattern.Trim('/');
             pattern = Regex.Escape(pattern)
                 .Replace("\\*", ".*")
                 .Replace("\\?", ".");
             pattern = _escapedOpenCurlyPattern.Replace(pattern, "{");
-            pattern = _escapedPlaceholderPattern.Replace(pattern, m => $"(?<{m.Groups["name"].Value}>[^/])");
+            pattern = _escapedPlaceholderPattern.Replace(pattern, m => $"(?<{m.Groups["name"].Value}>[^/]+)");
             pattern = pattern.Replace("{", "\\{");
             return pattern;
         }

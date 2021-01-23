@@ -15,6 +15,7 @@ struct Condition
     public string TargetMethod;
     public string Arguments;
     public string Application;
+    public string FinalApplication;
 }
 
 Response[] Responses = new[] {
@@ -70,28 +71,32 @@ Condition[] Conditions = new[] {
         MethodSuffix = "Regex",
         TargetMethod = "UseWhen",
         Arguments = "string regex",
-        Application = "new RegexRouteCondition(null, regex)",
+        Application = "new RegexRouteCondition(null, regex, rightOpen: true)",
+        FinalApplication = "new RegexRouteCondition(null, regex, rightOpen: false)",
     },
     new Condition {
         Name = "Regex and HTTP method",
         MethodSuffix = "Regex",
         TargetMethod = "UseWhen",
         Arguments = "HttpMethod httpMethod, string regex",
-        Application = "new RegexRouteCondition(httpMethod, regex)",
+        Application = "new RegexRouteCondition(httpMethod, regex, rightOpen: true)",
+        FinalApplication = "new RegexRouteCondition(httpMethod, regex, rightOpen: false)",
     },
     new Condition {
         Name = "Route pattern all HTTP methods",
         MethodSuffix = "",
         TargetMethod = "UseWhen",
         Arguments = "string pattern",
-        Application = "RegexRouteCondition.FromRoutePattern(null, pattern)",
+        Application = "RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: true)",
+        FinalApplication = "RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false)",
     },
     new Condition {
         Name = "Route pattern and HTTP method",
         MethodSuffix = "",
         TargetMethod = "UseWhen",
         Arguments = "HttpMethod httpMethod, string pattern",
-        Application = "RegexRouteCondition.FromRoutePattern(httpMethod, pattern)",
+        Application = "RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: true)",
+        FinalApplication = "RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false)",
     },
 };
 

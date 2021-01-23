@@ -30,13 +30,13 @@ namespace Mastersign.MicroHttpServer
         public static IHttpRoutable Branch(this IHttpRoutable r, HttpMethod httpMethod)
             => r.Branch(new HttpMethodCondition(httpMethod));
         public static IHttpRoutable BranchRegex(this IHttpRoutable r, string regex)
-            => r.Branch(new RegexRouteCondition(null, regex));
+            => r.Branch(new RegexRouteCondition(null, regex, rightOpen: true));
         public static IHttpRoutable BranchRegex(this IHttpRoutable r, HttpMethod httpMethod, string regex)
-            => r.Branch(new RegexRouteCondition(httpMethod, regex));
+            => r.Branch(new RegexRouteCondition(httpMethod, regex, rightOpen: true));
         public static IHttpRoutable Branch(this IHttpRoutable r, string pattern)
-            => r.Branch(RegexRouteCondition.FromRoutePattern(null, pattern));
+            => r.Branch(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: true));
         public static IHttpRoutable Branch(this IHttpRoutable r, HttpMethod httpMethod, string pattern)
-            => r.Branch(RegexRouteCondition.FromRoutePattern(httpMethod, pattern));
+            => r.Branch(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: true));
 
         #endregion
 
@@ -124,31 +124,31 @@ namespace Mastersign.MicroHttpServer
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             string regex, 
             IHttpRequestHandler handler)
-            => r.UseWhen(new RegexRouteCondition(null, regex), handler);
+            => r.UseWhen(new RegexRouteCondition(null, regex, rightOpen: false), handler);
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             string regex, 
             Func<IHttpContext, Func<Task>, Task> handler)
-            => r.UseWhen(new RegexRouteCondition(null, regex), new AnonymousHttpRequestHandler(handler));
+            => r.UseWhen(new RegexRouteCondition(null, regex, rightOpen: false), new AnonymousHttpRequestHandler(handler));
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             string regex, 
             Func<IHttpContext, IHttpResponse> responseGenerator)
-            => r.UseWhen(new RegexRouteCondition(null, regex), (ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
+            => r.UseWhen(new RegexRouteCondition(null, regex, rightOpen: false), (ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             string regex, 
             Func<IHttpContext, string> contentGenerator, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.UseWhen(new RegexRouteCondition(null, regex), new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
+            => r.UseWhen(new RegexRouteCondition(null, regex, rightOpen: false), new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             string regex, 
             Func<IHttpContext, byte[]> contentGenerator, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.UseWhen(new RegexRouteCondition(null, regex), new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
+            => r.UseWhen(new RegexRouteCondition(null, regex, rightOpen: false), new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             string regex, 
             string text, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.UseWhen(new RegexRouteCondition(null, regex), new ConstStringHttpRequestHandler(text, contentType: contentType));
+            => r.UseWhen(new RegexRouteCondition(null, regex, rightOpen: false), new ConstStringHttpRequestHandler(text, contentType: contentType));
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             string regex, 
             byte[] data, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.UseWhen(new RegexRouteCondition(null, regex), new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
+            => r.UseWhen(new RegexRouteCondition(null, regex, rightOpen: false), new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
 
         #endregion
 
@@ -157,31 +157,31 @@ namespace Mastersign.MicroHttpServer
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             HttpMethod httpMethod, string regex, 
             IHttpRequestHandler handler)
-            => r.UseWhen(new RegexRouteCondition(httpMethod, regex), handler);
+            => r.UseWhen(new RegexRouteCondition(httpMethod, regex, rightOpen: false), handler);
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             HttpMethod httpMethod, string regex, 
             Func<IHttpContext, Func<Task>, Task> handler)
-            => r.UseWhen(new RegexRouteCondition(httpMethod, regex), new AnonymousHttpRequestHandler(handler));
+            => r.UseWhen(new RegexRouteCondition(httpMethod, regex, rightOpen: false), new AnonymousHttpRequestHandler(handler));
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             HttpMethod httpMethod, string regex, 
             Func<IHttpContext, IHttpResponse> responseGenerator)
-            => r.UseWhen(new RegexRouteCondition(httpMethod, regex), (ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
+            => r.UseWhen(new RegexRouteCondition(httpMethod, regex, rightOpen: false), (ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             HttpMethod httpMethod, string regex, 
             Func<IHttpContext, string> contentGenerator, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.UseWhen(new RegexRouteCondition(httpMethod, regex), new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
+            => r.UseWhen(new RegexRouteCondition(httpMethod, regex, rightOpen: false), new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             HttpMethod httpMethod, string regex, 
             Func<IHttpContext, byte[]> contentGenerator, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.UseWhen(new RegexRouteCondition(httpMethod, regex), new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
+            => r.UseWhen(new RegexRouteCondition(httpMethod, regex, rightOpen: false), new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             HttpMethod httpMethod, string regex, 
             string text, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.UseWhen(new RegexRouteCondition(httpMethod, regex), new ConstStringHttpRequestHandler(text, contentType: contentType));
+            => r.UseWhen(new RegexRouteCondition(httpMethod, regex, rightOpen: false), new ConstStringHttpRequestHandler(text, contentType: contentType));
         public static IHttpRoutable UseWhenRegex(this IHttpRoutable r,
             HttpMethod httpMethod, string regex, 
             byte[] data, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.UseWhen(new RegexRouteCondition(httpMethod, regex), new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
+            => r.UseWhen(new RegexRouteCondition(httpMethod, regex, rightOpen: false), new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
 
         #endregion
 
@@ -190,31 +190,31 @@ namespace Mastersign.MicroHttpServer
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             string pattern, 
             IHttpRequestHandler handler)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern), handler);
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), handler);
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             string pattern, 
             Func<IHttpContext, Func<Task>, Task> handler)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern), new AnonymousHttpRequestHandler(handler));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new AnonymousHttpRequestHandler(handler));
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             string pattern, 
             Func<IHttpContext, IHttpResponse> responseGenerator)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern), (ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), (ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             string pattern, 
             Func<IHttpContext, string> contentGenerator, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern), new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             string pattern, 
             Func<IHttpContext, byte[]> contentGenerator, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern), new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             string pattern, 
             string text, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern), new ConstStringHttpRequestHandler(text, contentType: contentType));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new ConstStringHttpRequestHandler(text, contentType: contentType));
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             string pattern, 
             byte[] data, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern), new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
 
         #endregion
 
@@ -223,31 +223,31 @@ namespace Mastersign.MicroHttpServer
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             HttpMethod httpMethod, string pattern, 
             IHttpRequestHandler handler)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(httpMethod, pattern), handler);
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), handler);
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             HttpMethod httpMethod, string pattern, 
             Func<IHttpContext, Func<Task>, Task> handler)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(httpMethod, pattern), new AnonymousHttpRequestHandler(handler));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new AnonymousHttpRequestHandler(handler));
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             HttpMethod httpMethod, string pattern, 
             Func<IHttpContext, IHttpResponse> responseGenerator)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(httpMethod, pattern), (ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), (ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); });
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             HttpMethod httpMethod, string pattern, 
             Func<IHttpContext, string> contentGenerator, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(httpMethod, pattern), new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new AnonymousStringHttpRequestHandler(contentGenerator, contentType));
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             HttpMethod httpMethod, string pattern, 
             Func<IHttpContext, byte[]> contentGenerator, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(httpMethod, pattern), new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType));
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             HttpMethod httpMethod, string pattern, 
             string text, string contentType = DEFAULT_STRING_MIMETYPE)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(httpMethod, pattern), new ConstStringHttpRequestHandler(text, contentType: contentType));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new ConstStringHttpRequestHandler(text, contentType: contentType));
         public static IHttpRoutable UseWhen(this IHttpRoutable r,
             HttpMethod httpMethod, string pattern, 
             byte[] data, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE)
-            => r.UseWhen(RegexRouteCondition.FromRoutePattern(httpMethod, pattern), new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
+            => r.UseWhen(RegexRouteCondition.FromRoutePattern(null, pattern, rightOpen: false), new ConstByteArrayHttpRequestHandler(data, contentType: contentType));
 
         #endregion
 
