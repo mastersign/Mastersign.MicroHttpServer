@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Mastersign.MicroHttpServer.Demo
 {
@@ -35,7 +36,14 @@ namespace Mastersign.MicroHttpServer.Demo
         {
             var app = new HttpApp("my app");
             app
-                .Post("/", "Got it!")
+                .Post("/", async ctx => {
+                    string text;
+                    using (var r = new StreamReader(ctx.Request.ContentStream))
+                    {
+                        text = await r.ReadToEndAsync();
+                    }
+                    return "<h1>Got It!</h1><pre><code>" + text + "</code></pre>";
+                })
                 .Get("/", "My App");
             return app;
         }

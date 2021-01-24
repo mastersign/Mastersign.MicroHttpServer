@@ -33,12 +33,24 @@ Response[] Responses = new[] {
         Application = "(ctx, _) => { ctx.Response = responseGenerator(ctx); return Task.Factory.GetCompleted(); }",
     },
     new Response {
+        Arguments = "Func<IHttpContext, Task<IHttpResponse>> responseGenerator",
+        Application = "async (ctx, _) => { ctx.Response = await responseGenerator(ctx); }",
+    },
+    new Response {
         Arguments = "Func<IHttpContext, string> contentGenerator, string contentType = DEFAULT_STRING_MIMETYPE",
         Application = "new AnonymousStringHttpRequestHandler(contentGenerator, contentType)",
     },
     new Response {
+        Arguments = "Func<IHttpContext, Task<string>> contentGenerator, string contentType = DEFAULT_STRING_MIMETYPE",
+        Application = "new AsyncAnonymousStringHttpRequestHandler(contentGenerator, contentType)",
+    },
+    new Response {
         Arguments = "Func<IHttpContext, byte[]> contentGenerator, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE",
         Application = "new AnonymousByteArrayHttpRequestHandler(contentGenerator, contentType)",
+    },
+    new Response {
+        Arguments = "Func<IHttpContext, Task<byte[]>> contentGenerator, string contentType = DEFAULT_BYTE_ARRAY_MIMETYPE",
+        Application = "new AsyncAnonymousByteArrayHttpRequestHandler(contentGenerator, contentType)",
     },
     new Response {
         Arguments = "string text, string contentType = DEFAULT_STRING_MIMETYPE",
