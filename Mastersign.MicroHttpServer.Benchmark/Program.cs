@@ -48,14 +48,14 @@ namespace Mastersign.MicroHttpServer.Benchmark
 
         public static void Minimal(IHttpServer svr)
         {
-            svr.Get(new ConstStringHttpRequestHandler("OK"));
+            svr.GetAll(new ConstStringHttpRequestHandler("OK"));
         }
 
         public static void Infrastructure(IHttpServer svr)
         {
             svr.Use(new ExceptionHandler());
             svr.Use(new CompressionMiddelware(new GZipCompressor(), new DeflateCompressor()));
-            svr.Get(new ConstStringHttpRequestHandler("infrastructre"));
+            svr.GetAll(new ConstStringHttpRequestHandler("infrastructre"));
             svr.Use(new NotFoundHandler());
         }
 

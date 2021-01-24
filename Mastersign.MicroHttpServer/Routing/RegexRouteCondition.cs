@@ -5,19 +5,16 @@ using System.Text.RegularExpressions;
 
 namespace Mastersign.MicroHttpServer
 {
-    [DebuggerDisplay("Regex Condition: {HttpMethod}, {Pattern,nq}")]
+    [DebuggerDisplay("Regex Condition: {Pattern,nq}")]
     public class RegexRouteCondition : IHttpRouteCondition
     {
-        private readonly HttpMethod? _method;
         private readonly string _pattern;
         private readonly Regex _regex;
 
-        internal HttpMethod? HttpMethod => _method;
         internal string Pattern => _pattern;
 
-        public RegexRouteCondition(HttpMethod? method, string regex, bool rightOpen = false, bool ignoreCase = false)
+        public RegexRouteCondition(string regex, bool rightOpen = false, bool ignoreCase = false)
         {
-            _method = method;
             _pattern = regex;
 
             regex = regex.Trim();
@@ -46,8 +43,8 @@ namespace Mastersign.MicroHttpServer
             _regex = new Regex(regex, options);
         }
 
-        public static RegexRouteCondition FromRoutePattern(HttpMethod? method, string pattern, bool rightOpen = false, bool ignoreCase = false)
-            => new RegexRouteCondition(method, RegexPatternFromRoutePattern(pattern), rightOpen, ignoreCase);
+        public static RegexRouteCondition FromRoutePattern(string pattern, bool rightOpen = false, bool ignoreCase = false)
+            => new RegexRouteCondition(RegexPatternFromRoutePattern(pattern), rightOpen, ignoreCase);
 
         private static readonly Regex _escapedOpenCurlyPattern = new Regex(@"\\\\\\\{");
         private static readonly Regex _escapedPlaceholderPattern = new Regex(@"\\\{(?<name>.+?)\}");
@@ -66,11 +63,6 @@ namespace Mastersign.MicroHttpServer
 
         public HttpRouteMatchResult Match(IHttpContext context)
         {
-            var request = context.Request;
-            if (_method.HasValue && request.Method != _method.Value)
-            {
-                return HttpRouteMatchResult.NoMatch;
-            }
             var match = _regex.Match(context.Route);
             context.Logger.Trace($"Regex Condition /{_regex}/ : {context.Route} => {match.Success}");
             if (match.Success)

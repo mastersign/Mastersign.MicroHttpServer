@@ -4,7 +4,7 @@ namespace Mastersign.MicroHttpServer.Demo
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             using var svr = new HttpServer()
                 .LogToConsole(LogLevel.Debug)
@@ -14,13 +14,13 @@ namespace Mastersign.MicroHttpServer.Demo
                 .Use(new ExceptionHandler())
                 .Use(new TimingMiddleware(LogLevel.Information))
                 .Use(new CompressionMiddelware(new GZipCompressor(), new DeflateCompressor()))
-                .Get("/", ctx => "Index")
-                .Get("about", ctx => "About")
+                .Get("/", "Index")
+                .Get("about", ctx => $"About (Locale = {ctx.Request.Query.GetByNameOrDefault("l", "en")})")
                 .UseWhen("redirect", (ctx, _) => ctx.RedirectTemporarily("about"))
-                .Branch("files").Get(new FileHandler(@"F:\")).EndWith(new NotFoundHandler())
+                .Branch("files").GetAll(new FileHandler(@"F:\")).EndWith(new NotFoundHandler())
                 .Branch("api")
                     .Get("info", (ctx, _) => ctx.Respond(StringHttpResponse.Text("Info")))
-                    .EndWith(ctx => "API")
+                    .EndWith("API")
                 .Get("item/{No}", ctx => $"Item No. {ctx.RouteParameters.GetByName("No")}")
                 .UseWhen("my-app", MyApp())
                 .EndWith(new NotFoundHandler());
@@ -35,8 +35,8 @@ namespace Mastersign.MicroHttpServer.Demo
         {
             var app = new HttpApp("my app");
             app
-                .Post("/", ctx => "Got it!")
-                .Get("/", ctx => "My App");
+                .Post("/", "Got it!")
+                .Get("/", "My App");
             return app;
         }
     }
