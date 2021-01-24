@@ -17,6 +17,7 @@ namespace Mastersign.MicroHttpServer
 
         public QueryStringLookup(string query)
         {
+            query = query.TrimStart('?');
             var splittedKeyValues = query.Split(_seperators, StringSplitOptions.RemoveEmptyEntries);
             var values = new Dictionary<string, string>(splittedKeyValues.Length / 2, StringComparer.InvariantCultureIgnoreCase);
 
