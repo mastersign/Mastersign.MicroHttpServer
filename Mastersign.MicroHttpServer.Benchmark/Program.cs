@@ -34,7 +34,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
             svr.Start();
 
             Console.WriteLine("Press ESC to stop...");
-            while (Console.ReadKey().Key != ConsoleKey.Escape) { }
+            while (Console.ReadKey(true).Key != ConsoleKey.Escape) { }
         }
 
         public static IDictionary<string, MethodInfo> Jobs => typeof(Program)

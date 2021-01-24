@@ -27,8 +27,8 @@ namespace Mastersign.MicroHttpServer.Demo
 
             svr.Start();
 
-            Console.WriteLine("Press any key to stop...");
-            Console.ReadKey();
+            Console.WriteLine("Press ESC to stop...");
+            while (Console.ReadKey(true).Key != ConsoleKey.Escape) { }
         }
 
         static HttpApp MyApp()
