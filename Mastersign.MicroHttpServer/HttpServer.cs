@@ -92,14 +92,14 @@ namespace Mastersign.MicroHttpServer
         {
             _isActive = true;
 
+            _logger.Info("Embedded Micro HTTP Server started.");
+
             foreach (var listener in _listeners)
             {
                 var tempListener = listener;
-
                 Task.Factory.StartNew(() => Listen(tempListener));
+                _logger.Info("Listening to: " + listener);
             }
-
-            _logger.Info("Embedded Micro HTTP Server started.");
         }
 
         private async void Listen(IHttpListener listener)

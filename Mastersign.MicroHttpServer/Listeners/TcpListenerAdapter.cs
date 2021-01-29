@@ -22,5 +22,10 @@ namespace Mastersign.MicroHttpServer
             client.NoDelay = NoDelay;
             return new TcpClientAdapter(client);
         }
+
+        public override string ToString()
+        {
+            return $"{_listener.LocalEndpoint}";
+        }
     }
 }

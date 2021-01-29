@@ -18,5 +18,10 @@ namespace Mastersign.MicroHttpServer
         {
             return new ClientSslDecorator(await _child.GetClient().ConfigureAwait(false), _certificate);
         }
+
+        public override string ToString()
+        {
+            return $"{_child} (SSL)";
+        }
     }
 }
