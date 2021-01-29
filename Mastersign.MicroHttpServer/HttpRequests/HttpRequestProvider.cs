@@ -29,11 +29,13 @@ namespace Mastersign.MicroHttpServer
             await Task.Run(() =>
             {
                 requestLine = ParseRequestLine(streamReader, ref consumed);
-                if (!requestLine.Success) return;
-
+            });
+            if (!requestLine.Success) return null;
+            await Task.Run(() =>
+            {
                 headers = ParseHeaderLines(streamReader, ref consumed);
             });
-            if (!requestLine.Success || headers == null) return null;
+            if (headers == null) return null;
 
             IHttpRequest request = new HttpRequest(requestLine.Method, requestLine.Uri, requestLine.Protocol, headers, stream);
             return request;
