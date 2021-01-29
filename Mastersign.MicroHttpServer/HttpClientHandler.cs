@@ -55,13 +55,13 @@ namespace Mastersign.MicroHttpServer
 
         private async void Process()
         {
+            var notFlushingStream = new NotFlushingStream(_stream);
             try
             {
                 while (Client.Connected)
                 {
-                    var limitedStream = new NotFlushingStream(new LimitedStream(_stream, _readLimit, _writeLimit));
-
-                    var request = await _requestProvider.Provide(limitedStream).ConfigureAwait(false);
+                    var requestStream = new LimitedStream(_stream, _readLimit, 0);
+                    var request = await _requestProvider.Provide(_stream).ConfigureAwait(false);
 
                     if (request != null)
                     {
@@ -76,10 +76,16 @@ namespace Mastersign.MicroHttpServer
 
                         if (context.Response != null)
                         {
-                            await WriteResponse(context, limitedStream).ConfigureAwait(false);
-                            await limitedStream.ExplicitFlushAsync().ConfigureAwait(false);
+                            var responseStream = _writeLimit >= 0 
+                                ? new LimitedStream(notFlushingStream, 0, _writeLimit) 
+                                : (Stream)notFlushingStream;
+                            await WriteResponse(context, responseStream).ConfigureAwait(false);
+                            await notFlushingStream.ExplicitFlushAsync().ConfigureAwait(false);
 
-                            if (!request.KeepAliveConnection() || context.Response.CloseConnection) Client.Close();
+                            if (context.Response.CloseConnection || !request.KeepAliveConnection())
+                            {
+                                Client.Close();
+                            }
                         }
 
                         UpdateLastOperationTime();
