@@ -37,6 +37,7 @@ namespace Mastersign.MicroHttpServer
                 minLevel: minLogLevel,
                 bufferSize: logBuffer);
             _requestProvider = requestProvider ?? new HttpRequestProvider();
+            _requestProvider.Logger = _logger;
         }
 
         public void Dispose()

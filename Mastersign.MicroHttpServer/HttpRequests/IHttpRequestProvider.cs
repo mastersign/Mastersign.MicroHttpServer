@@ -5,6 +5,8 @@ namespace Mastersign.MicroHttpServer
 {
     public interface IHttpRequestProvider
     {
+        ILogger Logger { get; set; }
+
         /// <summary>
         ///     Provides an <see cref="IHttpRequest" /> based on the context of the stream,
         ///     May return null / throw exceptions on invalid requests.

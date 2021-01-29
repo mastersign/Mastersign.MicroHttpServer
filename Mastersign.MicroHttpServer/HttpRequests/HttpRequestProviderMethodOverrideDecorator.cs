@@ -12,6 +12,12 @@ namespace Mastersign.MicroHttpServer
             _child = child;
         }
 
+        public ILogger Logger
+        {
+            get => _child.Logger;
+            set => _child.Logger = value;
+        }
+
         public async Task<IHttpRequest> Provide(Stream stream)
         {
             var childValue = await _child.Provide(stream).ConfigureAwait(false);

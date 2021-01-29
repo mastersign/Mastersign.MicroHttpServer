@@ -16,6 +16,8 @@ namespace Mastersign.MicroHttpServer
 
         public bool AllowUTF8Header { get; set; }
 
+        public ILogger Logger { get; set; }
+
         public async Task<IHttpRequest> Provide(Stream stream)
         {
             var streamReader = new StreamReader(stream, AllowUTF8Header ? Encoding.UTF8 : Encoding.ASCII);
