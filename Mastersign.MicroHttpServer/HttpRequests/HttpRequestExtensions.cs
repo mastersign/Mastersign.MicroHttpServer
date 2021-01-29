@@ -12,6 +12,6 @@ namespace Mastersign.MicroHttpServer
 
         public static bool KeepAliveConnection(this IHttpRequest request)
             => request.Headers.TryGetByName("Connection", out var value)
-                && value.Equals("Keep-Alive", StringComparison.InvariantCultureIgnoreCase);
+                && value.Equals("Keep-Alive", StringComparison.OrdinalIgnoreCase);
     }
 }
