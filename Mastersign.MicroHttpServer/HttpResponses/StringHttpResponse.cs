@@ -32,7 +32,7 @@ namespace Mastersign.MicroHttpServer
                 new KeyValuePair<string, string>("Date", DateTime.UtcNow.ToString("R")),
                 new KeyValuePair<string, string>("Content-Type", contentType),
                 new KeyValuePair<string, string>("Connection", keepAlive ? "Keep-Alive" : "Close"),
-                new KeyValuePair<string, string>("Content-Length", Encoding.UTF8.GetByteCount(body).ToString(CultureInfo.InvariantCulture))
+                new KeyValuePair<string, string>("Content-Length", _encoding.GetByteCount(body).ToString(CultureInfo.InvariantCulture))
             }));
         }
 
@@ -48,7 +48,7 @@ namespace Mastersign.MicroHttpServer
 
         public override async Task WriteBody(Stream stream)
         {
-            using (var writer = new StreamWriter(stream, _encoding, DEFAULT_BUFFER_SIZE, true))
+            using (var writer = new StreamWriter(stream, _encoding, DEFAULT_BUFFER_SIZE, leaveOpen: true))
             {
                 await writer.WriteAsync(_body).ConfigureAwait(false);
             }
