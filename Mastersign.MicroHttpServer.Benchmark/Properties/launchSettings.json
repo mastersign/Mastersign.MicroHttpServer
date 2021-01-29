@@ -15,6 +15,11 @@
     "Minimal Log Verbose Colors": {
       "commandName": "Project",
       "commandLineArgs": "-LogToConsole -LogWithColors -LogLevel Verbose Minimal"
+    },
+    "Remote": {
+      "commandName": "Project",
+      "commandLineArgs": "-Host 0.0.0.0 -Port 8080 -LogToConsole -LogLevel Information Minimal",
+      "use64Bit": true
     }
   }
 }
