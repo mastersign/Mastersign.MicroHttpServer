@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -88,14 +89,26 @@ namespace Mastersign.MicroHttpServer
             return headersRaw.ToStringLookup();
         }
 
-        private static string ReadLimitedLine(StreamReader r, int limit)
+        private string ReadLimitedLine(StreamReader r, int limit)
         {
             var sb = new StringBuilder();
             var exceededLimit = false;
-            int c;
+            int c = 0;
             var hadCR = false;
-            while ((c = r.Read()) >= 0)
+            while (c >= 0)
             {
+                try
+                {
+                    c = r.Read();
+                }
+                catch (IOException ioex) when (ioex.InnerException is SocketException soex)
+                {
+                    Logger?.Trace($"{soex.ErrorCode} {soex.SocketErrorCode}");
+                    if (soex.SocketErrorCode == SocketError.TimedOut)
+                        continue;
+                    else
+                        return null;
+                }
                 if (sb.Length > limit)
                 {
                     exceededLimit = true;
