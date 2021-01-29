@@ -8,7 +8,7 @@ namespace Mastersign.MicroHttpServer
 {
     internal sealed class HttpClientHandler
     {
-        private const int DEFAULT_REQUEST_BUFFER_SIZE = 1024 * 8;
+        private const int DEFAULT_STREAM_BUFFER_SIZE = 1024 * 8;
         private const int DEFAULT_REQUEST_STREAM_LIMIT = 1024 * 1024;
         private const int DEFAULT_RESPONSE_STREAM_LIMIT = -1;
         private const int RESPONSE_HEADER_BUFFER_SIZE = 1024;
@@ -30,7 +30,7 @@ namespace Mastersign.MicroHttpServer
             Func<IHttpContext, Task> requestHandler,
             IHttpRequestProvider requestProvider,
             ILogger logger = null,
-            int requestBufferSize = DEFAULT_REQUEST_BUFFER_SIZE,
+            int streamBufferSize = DEFAULT_STREAM_BUFFER_SIZE,
             int requestStreamLimit = DEFAULT_REQUEST_STREAM_LIMIT,
             int responseStreamLimit = DEFAULT_RESPONSE_STREAM_LIMIT)
         {
@@ -42,7 +42,9 @@ namespace Mastersign.MicroHttpServer
             _readLimit = requestStreamLimit;
             _writeLimit = responseStreamLimit;
 
-            _stream = new BufferedStream(Client.Stream, requestBufferSize);
+            _stream = streamBufferSize > 0 
+                ? new BufferedStream(Client.Stream, streamBufferSize)
+                : Client.Stream;
 
             _logger.Debug($"{_remoteEndPoint} connect");
 
