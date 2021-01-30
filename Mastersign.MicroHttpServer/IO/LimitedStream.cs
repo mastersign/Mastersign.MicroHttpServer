@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
 {
@@ -7,8 +9,8 @@ namespace Mastersign.MicroHttpServer
     {
         private const string _exceptionMessageFormat = "The stream has exceeded the {0} limit specified.";
         private readonly Stream _child;
-        private long _readLimit;
-        private long _writeLimit;
+        private long _readCapacity;
+        private long _writeCapacity;
 
         public override bool CanRead => _child.CanRead;
 
@@ -39,8 +41,8 @@ namespace Mastersign.MicroHttpServer
         public LimitedStream(Stream child, long readLimit = -1, long writeLimit = -1)
         {
             _child = child;
-            _readLimit = readLimit;
-            _writeLimit = writeLimit;
+            _readCapacity = readLimit;
+            _writeCapacity = writeLimit;
         }
 
         public override void Flush()
@@ -60,52 +62,74 @@ namespace Mastersign.MicroHttpServer
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            var retVal = _child.Read(buffer, offset, count);
-
-            AssertReadLimit(retVal);
-
-            return retVal;
+            var bytesRead = _child.Read(buffer, offset, count);
+            AssertReadLimit(bytesRead);
+            return bytesRead;
         }
 
-        private void AssertReadLimit(int coefficient)
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+            => _child.BeginRead(buffer, offset, count, callback, state);
+
+        public override int EndRead(IAsyncResult asyncResult)
         {
-            if (_readLimit == -1) return;
-
-            _readLimit -= coefficient;
-
-            if (_readLimit < 0) throw new IOException(string.Format(_exceptionMessageFormat, "read"));
+            var bytesRead = _child.EndRead(asyncResult);
+            AssertReadLimit(bytesRead);
+            return bytesRead;
         }
 
-        private void AssertWriteLimit(int coefficient)
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            if (_writeLimit == -1) return;
-
-            _writeLimit -= coefficient;
-
-            if (_writeLimit < 0) throw new IOException(string.Format(_exceptionMessageFormat, "write"));
+            var bytesRead = await _child.ReadAsync(buffer, offset, count, cancellationToken);
+            AssertReadLimit(bytesRead);
+            return bytesRead;
         }
 
         public override int ReadByte()
         {
-            var retVal = _child.ReadByte();
-
+            var v = _child.ReadByte();
             AssertReadLimit(1);
+            return v;
+        }
 
-            return retVal;
+        private void AssertReadLimit(int consumed)
+        {
+            if (_readCapacity == -1) return;
+            _readCapacity -= consumed;
+            if (_readCapacity < 0) throw new IOException(string.Format(_exceptionMessageFormat, "read"));
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
             _child.Write(buffer, offset, count);
-
             AssertWriteLimit(count);
+        }
+
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {
+            AssertWriteLimit(count);
+            return _child.BeginWrite(buffer, offset, count, callback, state);
+        }
+
+        public override void EndWrite(IAsyncResult asyncResult)
+            => _child.EndWrite(asyncResult);
+
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            AssertWriteLimit(count);
+            return _child.WriteAsync(buffer, offset, count, cancellationToken);
         }
 
         public override void WriteByte(byte value)
         {
             _child.WriteByte(value);
-
             AssertWriteLimit(1);
+        }
+
+        private void AssertWriteLimit(int consumed)
+        {
+            if (_writeCapacity == -1) return;
+            _writeCapacity -= consumed;
+            if (_writeCapacity < 0) throw new IOException(string.Format(_exceptionMessageFormat, "write"));
         }
     }
 }
