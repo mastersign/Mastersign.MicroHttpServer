@@ -4,6 +4,7 @@ param (
     [switch]$NoBuild,
     [switch]$NoServerStart,
     [switch]$NoWarmUp,
+    [switch]$WindowsTerminal,
     [switch]$GridView
 )
 $config = Get-Content $ConfigFile | ConvertFrom-Json
@@ -121,7 +122,15 @@ try {
                 if (!$NoServerStart) {
                     Write-Host "    Command Line: dotnet $([string]::Join(" ", $serverArgs))"
 
-                    $serverProc = Start-Process "dotnet" $serverArgs -PassThru
+                    if ($WindowsTerminal) {
+                        $serverArgs = @("dotnet") + $serverArgs
+                        Start-Process "wt" $serverArgs -PassThru
+                        [Threading.Thread]::Sleep([TimeSpan]::FromSeconds(2))
+                        $serverProc = Get-Process -Name "dotnet"
+                        $serverProc | Out-Default
+                    } else {
+                        $serverProc = Start-Process "dotnet" $serverArgs -PassThru
+                    }
                     [Threading.Thread]::Sleep([TimeSpan]::FromSeconds(2))
                     if ($serverProc.HasExited) {
                         Write-Error "Server process has exited, before the benchmark was executed."
