@@ -55,7 +55,7 @@ namespace Mastersign.MicroHttpServer.Benchmark
         {
             svr.Use(new ExceptionHandler());
             svr.Use(new CompressionMiddelware(new GZipCompressor(), new DeflateCompressor()));
-            svr.GetAll(new ConstStringHttpRequestHandler("infrastructre"));
+            svr.GetAll(new ConstStringHttpRequestHandler("infrastructure"));
             svr.Use(new NotFoundHandler());
         }
 
