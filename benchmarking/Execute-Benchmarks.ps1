@@ -92,7 +92,7 @@ try {
                     "--no-build"
                     "-f", $framework
                     "-c", $buildConfiguration
-                    "-p", $ProjectFile
+                    "--project", $ProjectFile
                     "--no-launch-profile"
                     "-Host", $config.Host,
                     "-Port", $config.Port

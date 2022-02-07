@@ -11,7 +11,7 @@
         "Debug"
     ],
     "Frameworks": [
-        "net5.0",
+        "net6.0",
         "netcoreapp3.1",
         "net461"
     ],
