@@ -11,7 +11,7 @@
         "Accept-Type": "*/*"
     },
     "Configurations": ["Release"],
-    "Frameworks": ["net461", "netcoreapp3.1", "net6.0", "net7.0"],
+    "Frameworks": ["net461", "net6.0", "net8.0"],
     "Variations": [
         {
             "Name": "Minimal",

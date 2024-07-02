@@ -9,7 +9,7 @@
     },
     "KeepAlive": true,
     "Configurations": ["Release"],
-    "Frameworks": ["net7.0"],
+    "Frameworks": ["net8.0"],
     "Variations": [
         {
             "Name": "Minimal log debug",
