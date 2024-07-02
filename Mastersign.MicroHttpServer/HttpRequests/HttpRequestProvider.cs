@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace Mastersign.MicroHttpServer
 
         public ILogger Logger { get; set; }
 
-        public async Task<IHttpRequest> Provide(Stream stream)
+        public async Task<IHttpRequest> Provide(Stream stream, EndPoint remoteEndPoint)
         {
             var streamReader = new StreamReader(stream, AllowUTF8Header ? Encoding.UTF8 : Encoding.ASCII);
             var consumed = 0;

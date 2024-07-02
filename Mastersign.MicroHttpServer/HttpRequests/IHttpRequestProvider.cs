@@ -1,4 +1,5 @@
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
@@ -11,6 +12,6 @@ namespace Mastersign.MicroHttpServer
         ///     Provides an <see cref="IHttpRequest" /> based on the context of the stream,
         ///     May return null / throw exceptions on invalid requests.
         /// </summary>
-        Task<IHttpRequest> Provide(Stream stream);
+        Task<IHttpRequest> Provide(Stream stream, EndPoint remoteEndPoint);
     }
 }

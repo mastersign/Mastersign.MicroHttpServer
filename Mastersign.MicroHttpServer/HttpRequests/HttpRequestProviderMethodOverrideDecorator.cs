@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Mastersign.MicroHttpServer
@@ -18,9 +19,9 @@ namespace Mastersign.MicroHttpServer
             set => _child.Logger = value;
         }
 
-        public async Task<IHttpRequest> Provide(Stream stream)
+        public async Task<IHttpRequest> Provide(Stream stream, EndPoint remoteEndPoint)
         {
-            var childValue = await _child.Provide(stream).ConfigureAwait(false);
+            var childValue = await _child.Provide(stream, remoteEndPoint).ConfigureAwait(false);
 
             return childValue != null
                 ? childValue.Headers.TryGetByName("X-HTTP-Method-Override", out var methodName)

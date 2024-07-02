@@ -61,7 +61,7 @@ namespace Mastersign.MicroHttpServer
                 while (Client.Connected)
                 {
                     var requestStream = new LimitedStream(_stream, _readLimit, 0);
-                    var request = await _requestProvider.Provide(_stream).ConfigureAwait(false);
+                    var request = await _requestProvider.Provide(_stream, _remoteEndPoint).ConfigureAwait(false);
 
                     if (request != null)
                     {
