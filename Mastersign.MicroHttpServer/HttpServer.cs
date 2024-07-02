@@ -121,7 +121,7 @@ namespace Mastersign.MicroHttpServer
                 }
                 catch (Exception e)
                 {
-                    _logger.Warn($"Error while getting client", e);
+                    _logger.Debug($"Error while getting client", e);
                 }
             }
 
