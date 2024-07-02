@@ -7,16 +7,19 @@
     
     <Authors>mastersign, jcailon, shani.elh, Joe White, Hüseyin Uslu</Authors>
 
+    <Description>A very lightweight &amp; simple embedded HTTP server for C#</Description>
+
     <PackageProjectUrl>https://github.com/mastersign/Mastersign.MicroHttpServer</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/mastersign/Mastersign.MicroHttpServer/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseExpression>LGPL-2.1-or-later</PackageLicenseExpression>
     <PackageTags>http server microframeworks</PackageTags>
+    <PackageReadmeFile>INFO.md</PackageReadmeFile>
     
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mastersign/Mastersign.MicroHttpServer.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    <None Include="INFO.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   
   <ItemGroup>

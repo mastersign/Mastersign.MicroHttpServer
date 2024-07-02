@@ -5,8 +5,8 @@ var serverCert = Certificates.BuildSelfSignedServerCertificate();
 
 using var svr = new HttpServer()
     .LogToConsole(LogLevel.Debug)
-    .ListenToLoopback();
-    // .ListenToLoopback(serverCertificate: serverCert, port: 8443);
+    .ListenToLoopback(port: 8080);  // HTTP server
+    // .ListenToLoopback(port: 8443, serverCertificate: serverCert);  // HTTPS server
 
 svr
     .Use(new ExceptionHandler())
