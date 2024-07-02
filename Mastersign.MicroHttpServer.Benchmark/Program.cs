@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Mastersign.MicroHttpServer.Benchmark
 {
@@ -30,7 +31,12 @@ namespace Mastersign.MicroHttpServer.Benchmark
             {
                 svr.LogToConsole(minLevel: config.LogLevel, withColor: config.LogToConsoleWithColors);
             }
-            svr.ListenTo(config.Host, config.Port, noDelay: config.NoDelay);
+            X509Certificate serverCert = null;
+            if (config.TLS)
+            {
+                serverCert = Certificates.BuildSelfSignedServerCertificate();
+            }
+            svr.ListenTo(config.Host, config.Port, serverCertificate: serverCert, noDelay: config.NoDelay);
             svr.Start();
 
             Console.WriteLine("Press ESC to stop...");

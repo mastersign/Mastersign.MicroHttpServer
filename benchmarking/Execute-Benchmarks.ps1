@@ -109,6 +109,9 @@ try {
                         $serverArgs += "-LogWithColors"
                     }
                 }
+                if ($variation.TLS) {
+                    $serverArgs += "-TLS"
+                }
                 if ($variation.NoDelay) {
                     $serverArgs += "-NoDelay"
                 }
@@ -152,9 +155,20 @@ try {
                             $abArgs += "-H"
                             $abArgs += "`"${key}: ${value}`""
                         }
-                        $abArgs += "http://$($config.Host):$($config.Port)$($variation.Route)"
-                        $abProc = Start-Process "ab" $abArgs -PassThru
-                        $abProc.WaitForExit()
+                        if ($variation.TLS) {
+                            $abExe = "abs.exe"
+                            $proto = "https"
+                            $abArgs += "-f"
+                            $abArgs += "TLS1.2"
+                        } else {
+                            $abExe = "ab.exe"
+                            $proto = "http"
+                        }
+                        $abArgs += "${proto}://$($config.Host):$($config.Port)$($variation.Route)"
+                        $abProc = Start-Process $abExe $abArgs `
+                            -RedirectStandardOutput "${fileBase}_warmup_stdout.txt" `
+                            -RedirectStandardError "${fileBase}_warmup_stderr.txt" `
+                            -PassThru -Wait
                         if ($abProc.ExitCode -ne 0) {
                             Write-Error "Apache Benchmark did not exit cleanly. Exit code: $($abProc.ExitCode)"
                         }
@@ -174,10 +188,20 @@ try {
                         $abArgs += "-H"
                         $abArgs += "`"${key}: ${value}`""
                     }
-                    $abArgs += "http://$($config.Host):$($config.Port)$($variation.Route)"
-                    Write-Host "    Command Line: ab $([string]::Join(" ", $abArgs))"
-                    $abProc = Start-Process "ab" $abArgs -NoNewWindow -RedirectStandardOutput "${fileBase}.txt" -PassThru
-                    $abProc.WaitForExit()
+                    if ($variation.TLS) {
+                        $abExe = "abs.exe"
+                        $proto = "https"
+                        $abArgs += "-f"
+                        $abArgs += "TLS1.2"
+                    } else {
+                        $abExe = "ab.exe"
+                        $proto = "http"
+                    }
+                $abArgs += "${proto}://$($config.Host):$($config.Port)$($variation.Route)"
+                    Write-Host "    Command Line: $abExe $([string]::Join(" ", $abArgs))"
+                    $abProc = Start-Process $abExe $abArgs -NoNewWindow `
+                        -RedirectStandardOutput "${fileBase}.txt" `
+                        -PassThru -Wait
 
                 } finally {
                     if ($serverProc -and !$serverProc.HasExited) {

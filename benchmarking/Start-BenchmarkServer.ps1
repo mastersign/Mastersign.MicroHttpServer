@@ -1,10 +1,11 @@
 param (
     $Bind = "0.0.0.0",
     $Port = 8080,
-    $Framework = "net6.0",
+    $Framework = "net8.0",
     $BuildConfiguration = "Release",
     $ProjectFile = "$(Split-Path $MyInvocation.MyCommand.Definition -Parent)\..\Mastersign.MicroHttpServer.Benchmark\Mastersign.MicroHttpServer.Benchmark.csproj",
     $Job = "Minimal",
+    $Tls = $false,
     $LogLevel = "Information",
     [switch]$LogWithColors,
     [switch]$NoDelay
@@ -22,6 +23,7 @@ $serverArgs = @(
     "-Port", $Port
     "-LogToConsole", "-LogLevel", $LogLevel
 )
+if ($Tls) { $serverArgs += "-TLS" }
 if ($LogWithColors) { $serverArgs += "-LogWithColors" }
 if ($NoDelay) { $serverArgs += "-NoDelay" }
 $serverArgs += $Job

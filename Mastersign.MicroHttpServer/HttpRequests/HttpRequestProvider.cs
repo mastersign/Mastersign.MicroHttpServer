@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -28,16 +29,31 @@ namespace Mastersign.MicroHttpServer
             ParsedRequestLine requestLine = ParsedRequestLine.Failed;
             IStringLookup headers = null;
 
-            await Task.Run(() =>
+            try
             {
-                requestLine = ParseRequestLine(streamReader, ref consumed);
-            });
-            if (!requestLine.Success) return null;
-            await Task.Run(() =>
+                await Task.Run(() =>
+                {
+                    requestLine = ParseRequestLine(streamReader, ref consumed);
+                });
+                if (!requestLine.Success) return null;
+                await Task.Run(() =>
+                {
+                    headers = ParseHeaderLines(streamReader, ref consumed);
+                });
+                if (headers == null) return null;
+            }
+            catch (IOException e)
             {
-                headers = ParseHeaderLines(streamReader, ref consumed);
-            });
-            if (headers == null) return null;
+                if (e.InnerException is Win32Exception w32Exc && (uint)w32Exc.NativeErrorCode == 0x80090327)
+                {
+                    // failed to decode data from SSL/TLS stream
+                    Logger?.Debug($"{remoteEndPoint} decoding stream failed: " + w32Exc.Message);
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             IHttpRequest request = new HttpRequest(requestLine.Method, requestLine.Uri, requestLine.Protocol, headers, stream);
             return request;

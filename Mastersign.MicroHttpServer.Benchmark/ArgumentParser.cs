@@ -23,6 +23,8 @@ namespace Mastersign.MicroHttpServer.Benchmark
 
         public bool NoDelay { get; }
 
+        public bool TLS { get; }
+
         public string Job { get; }
 
         public ArgumentParser(string[] args)
@@ -73,6 +75,9 @@ namespace Mastersign.MicroHttpServer.Benchmark
                             Console.Error.WriteLine("Invalid value for option -LogBuffer: " + args[p]);
                             Environment.Exit(1);
                         }
+                        break;
+                    case "-TLS":
+                        TLS = true;
                         break;
                     case "-NoDelay":
                         NoDelay = true;

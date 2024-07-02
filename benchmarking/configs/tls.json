@@ -1,0 +1,37 @@
+{
+    "Requests": 50000,
+    "WarmUpRequests": 1000,
+    "Concurrency": 16,
+    "RequestTimeout": 2,
+    "Host": "127.0.0.1",
+    "Port": 8080,
+    "KeepAlive": false,
+    "Headers": {
+        "Accept-Encoding": "gzip",
+        "Accept-Type": "*/*"
+    },
+    "Configurations": ["Release"],
+    "Frameworks": ["net6.0", "net8.0"],
+    "Variations": [
+        {
+            "Name": "Infrastructure without TLS",
+            "FileName": "infrastructure_no_tls",
+            "LogToConsole": true,
+            "LogWithColors": false,
+            "LogLevel": "Information",
+            "TLS": false,
+            "Job": "Infrastructure",
+            "Route": "/"
+        },
+        {
+            "Name": "Infrastructure with TLS",
+            "FileName": "infrastructure_tls",
+            "LogToConsole": true,
+            "LogWithColors": false,
+            "LogLevel": "Information",
+            "TLS": true,
+            "Job": "Infrastructure",
+            "Route": "/"
+        }
+    ]
+}

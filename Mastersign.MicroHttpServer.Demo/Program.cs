@@ -1,8 +1,12 @@
 ﻿using Mastersign.MicroHttpServer;
+using Mastersign.MicroHttpServer.Demo;
+
+var serverCert = Certificates.BuildSelfSignedServerCertificate();
 
 using var svr = new HttpServer()
     .LogToConsole(LogLevel.Debug)
     .ListenToLoopback();
+    // .ListenToLoopback(serverCertificate: serverCert, port: 8443);
 
 svr
     .Use(new ExceptionHandler())
