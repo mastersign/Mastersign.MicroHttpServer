@@ -55,8 +55,23 @@ namespace Mastersign.MicroHttpServer
                 }
             }
 
-            IHttpRequest request = new HttpRequest(requestLine.Method, requestLine.Uri, requestLine.Protocol, headers, stream);
-            return request;
+            Stream contentStream = null;
+            try
+            {
+                var contentLength = long.Parse(headers.GetByName("Content-Length"));
+                if (contentLength > 0)
+                {
+                    contentStream = new ContentStream(stream, contentLength);
+                }
+            }
+            catch (Exception) 
+            {
+                // invalid or missing content length header
+                // leads to null content stream
+            }
+            return new HttpRequest(
+                requestLine.Method, requestLine.Uri, requestLine.Protocol,
+                headers, contentStream);
         }
 
         private ParsedRequestLine ParseRequestLine(StreamReader r, ref int consumed)
