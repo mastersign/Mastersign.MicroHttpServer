@@ -18,7 +18,7 @@ namespace Mastersign.MicroHttpServer.Test.Basics
                 server.GetAll("Hello World");
                 server.Start();
 
-                using (var client = new System.Net.Http.HttpClient())
+                using (var client = new System.Net.Http.HttpClient() { Timeout = TimeSpan.FromSeconds(1) })
                 {
                     var request = new System.Net.Http.HttpRequestMessage(
                         System.Net.Http.HttpMethod.Get, "http://127.0.0.1:10101/");
@@ -45,7 +45,7 @@ namespace Mastersign.MicroHttpServer.Test.Basics
                 server.GetAll(payload);
                 server.Start();
 
-                using (var client = new System.Net.Http.HttpClient())
+                using (var client = new System.Net.Http.HttpClient() { Timeout = TimeSpan.FromSeconds(1) })
                 {
                     var request = new System.Net.Http.HttpRequestMessage(
                         System.Net.Http.HttpMethod.Get, "http://127.0.0.1:10102/");
