@@ -76,10 +76,9 @@ namespace Mastersign.MicroHttpServer
 
         private ParsedRequestLine ParseRequestLine(StreamReader r, ref int consumed)
         {
-            var request = ReadLimitedLine(r, RequestLineLimit);
+            var request = ReadLimitedLine(r, RequestLineLimit, ref consumed);
 
             if (request == null) return ParsedRequestLine.Failed;
-            consumed += request.Length + 2;
 
             var firstSpace = request.IndexOf(' ');
             var lastSpace = request.LastIndexOf(' ');
@@ -91,7 +90,6 @@ namespace Mastersign.MicroHttpServer
                 request.Substring(firstSpace + 1, lastSpace - firstSpace - 1),
                 request.Substring(lastSpace + 1)
             };
-            if (tokens.Length != 3) return ParsedRequestLine.Failed;
 
             var method = HttpMethodProvider.Default.Provide(tokens[0]);
             var uriString = tokens[1];
@@ -107,9 +105,8 @@ namespace Mastersign.MicroHttpServer
         {
             var headersRaw = new List<KeyValuePair<string, string>>();
             string line;
-            while (!string.IsNullOrEmpty(line = ReadLimitedLine(r, HeaderLineLimit)))
+            while (!string.IsNullOrEmpty(line = ReadLimitedLine(r, HeaderLineLimit, ref consumed)))
             {
-                consumed += line.Length + 2;
                 if (consumed > TotalHeaderLimit)
                 {
                     return null;
@@ -121,7 +118,7 @@ namespace Mastersign.MicroHttpServer
             return headersRaw.ToStringLookup();
         }
 
-        private string ReadLimitedLine(StreamReader r, int limit)
+        private string ReadLimitedLine(StreamReader r, int limit, ref int consumed)
         {
             var sb = new StringBuilder();
             var exceededLimit = false;
@@ -141,6 +138,7 @@ namespace Mastersign.MicroHttpServer
                     else
                         return null;
                 }
+                consumed ++;
                 if (sb.Length > limit)
                 {
                     exceededLimit = true;
