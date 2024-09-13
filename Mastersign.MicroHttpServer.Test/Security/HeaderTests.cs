@@ -12,9 +12,9 @@ namespace Mastersign.MicroHttpServer.Test.Security
         [Fact]
         public async void DoAllowRequestLineEqualLimit()
         {
-            var protocolOverhead = "GET  HTTP/1.1".Length;
-            var requestLineLimit = protocolOverhead + 200;
-            var requestProvider = new HttpRequestProvider { RequestLineLimit = requestLineLimit };
+            var protocolOverhead = "GET / HTTP/1.1\r\n".Length;
+            var lineLimit = protocolOverhead + 200;
+            var requestProvider = new HttpRequestProvider { LineLimit = lineLimit };
             using (var server = new HttpServer(requestProvider: requestProvider))
             {
                 server.ListenToLoopback(10001);
@@ -24,7 +24,7 @@ namespace Mastersign.MicroHttpServer.Test.Security
                 using (var client = new System.Net.Http.HttpClient())
                 {
                     var request = new System.Net.Http.HttpRequestMessage(
-                        System.Net.Http.HttpMethod.Get, "http://127.0.0.1:10001" + "/" + new string('T', 200 - 1));
+                        System.Net.Http.HttpMethod.Get, "http://127.0.0.1:10001/" + new string('T', 100));
                     var response = await client.SendAsync(request);
                     Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
                 }
@@ -34,9 +34,9 @@ namespace Mastersign.MicroHttpServer.Test.Security
         [Fact]
         public async void DoNotAllowRequestLineGreaterLimit()
         {
-            var protocolOverhead = "GET  HTTP/1.1".Length;
-            var requestLineLimit = protocolOverhead + 200;
-            var requestProvider = new HttpRequestProvider { RequestLineLimit = requestLineLimit };
+            var protocolOverhead = "GET / HTTP/1.1\r\n".Length;
+            var lineLimit = protocolOverhead + 200;
+            var requestProvider = new HttpRequestProvider { LineLimit = lineLimit };
             using (var server = new HttpServer(requestProvider: requestProvider))
             {
                 server.ListenToLoopback(10002);
@@ -46,7 +46,7 @@ namespace Mastersign.MicroHttpServer.Test.Security
                 using (var client = new System.Net.Http.HttpClient())
                 {
                     var request = new System.Net.Http.HttpRequestMessage(
-                        System.Net.Http.HttpMethod.Get, "http://127.0.0.1:10002" + "/" + new string('T', 200 - 1 + 1));
+                        System.Net.Http.HttpMethod.Get, "http://127.0.0.1:10002/" + new string('T', 200 + 1));
                     await Assert.ThrowsAsync<System.Net.Http.HttpRequestException>(async () =>
                     {
                         await client.SendAsync(request);
@@ -58,8 +58,9 @@ namespace Mastersign.MicroHttpServer.Test.Security
         [Fact]
         public async void DoAllowSingleHeaderLineEqualLimit()
         {
-            const int LIMIT = 200;
-            var requestProvider = new HttpRequestProvider { HeaderLineLimit = LIMIT };
+            var headerOverhead = "X-Test: \r\n".Length;
+            var lineLimit = headerOverhead + 200;
+            var requestProvider = new HttpRequestProvider { LineLimit = lineLimit };
             using (var server = new HttpServer(requestProvider: requestProvider))
             {
                 server.ListenToLoopback(10003);
@@ -70,7 +71,7 @@ namespace Mastersign.MicroHttpServer.Test.Security
                 {
                     var request = new System.Net.Http.HttpRequestMessage(
                         System.Net.Http.HttpMethod.Get, "http://127.0.0.1:10003");
-                    request.Headers.Add("X-Test", new string('T', LIMIT - 8));
+                    request.Headers.Add("X-Test", new string('T', 200));
                     var response = await client.SendAsync(request);
                     Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
                 }
@@ -80,8 +81,9 @@ namespace Mastersign.MicroHttpServer.Test.Security
         [Fact]
         public async void DoNotAllowSingleHeaderLineGreaterLimit()
         {
-            const int LIMIT = 200;
-            var requestProvider = new HttpRequestProvider { HeaderLineLimit = LIMIT };
+            var headerOverhead = "X-Test: \r\n".Length;
+            var lineLimit = headerOverhead + 200;
+            var requestProvider = new HttpRequestProvider { LineLimit = lineLimit };
             using (var server = new HttpServer(requestProvider: requestProvider))
             {
                 server.ListenToLoopback(10004);
@@ -92,7 +94,7 @@ namespace Mastersign.MicroHttpServer.Test.Security
                 {
                     var request = new System.Net.Http.HttpRequestMessage(
                         System.Net.Http.HttpMethod.Get, "http://127.0.0.1:10004");
-                    request.Headers.Add("X-Test", new string('T', LIMIT - 8 + 1));
+                    request.Headers.Add("X-Test", new string('T', 200 + 1));
                     await Assert.ThrowsAsync<System.Net.Http.HttpRequestException>(async () =>
                     {
                         await client.SendAsync(request);

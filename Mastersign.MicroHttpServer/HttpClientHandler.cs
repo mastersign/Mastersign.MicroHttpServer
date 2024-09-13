@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -8,8 +9,8 @@ namespace Mastersign.MicroHttpServer
 {
     internal sealed class HttpClientHandler
     {
-        private const int DEFAULT_STREAM_BUFFER_SIZE = 1024 * 8;
-        private const int DEFAULT_REQUEST_STREAM_LIMIT = 1024 * 1024;
+        private const int DEFAULT_STREAM_BUFFER_SIZE = 0;
+        private const int DEFAULT_REQUEST_STREAM_LIMIT = 1024 * 1024 * 32;
         private const int DEFAULT_RESPONSE_STREAM_LIMIT = -1;
         private const int RESPONSE_HEADER_BUFFER_SIZE = 1024;
 
@@ -98,6 +99,7 @@ namespace Mastersign.MicroHttpServer
             }
             catch (Exception e)
             {
+                Debug.WriteLine("Error while serving: " + e);
                 _logger.Warn($"{_remoteEndPoint} error while serving", e);
                 Client.Close();
             }

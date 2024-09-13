@@ -4,9 +4,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Mastersign.MicroHttpServer.IO;
 
 namespace Mastersign.MicroHttpServer
 {
@@ -14,9 +14,7 @@ namespace Mastersign.MicroHttpServer
     {
         public int TotalHeaderLimit { get; set; } = 1024 * 4;
 
-        public int RequestLineLimit { get; set; } = 1024;
-
-        public int HeaderLineLimit { get; set; } = 1024;
+        public int LineLimit { get; set; } = 1024;
 
         public bool AllowUTF8Header { get; set; }
 
@@ -25,8 +23,8 @@ namespace Mastersign.MicroHttpServer
         public async Task<IHttpRequest> Provide(Stream stream, EndPoint remoteEndPoint)
         {
             var countingStream = new CountingStream(stream);
-            var streamReader = new StreamReader(countingStream, AllowUTF8Header ? Encoding.UTF8 : Encoding.ASCII);
-            var consumed = 0;
+            var encoding = AllowUTF8Header ? Encoding.UTF8 : Encoding.ASCII;
+            var lineReader = new LineReader(countingStream, encoding, LineLimit);
 
             ParsedRequestLine requestLine = ParsedRequestLine.Failed;
             IStringLookup headers = null;
@@ -35,12 +33,12 @@ namespace Mastersign.MicroHttpServer
             {
                 await Task.Run(() =>
                 {
-                    requestLine = ParseRequestLine(streamReader, ref consumed);
+                    requestLine = ParseRequestLine(lineReader);
                 });
                 if (!requestLine.Success) return null;
                 await Task.Run(() =>
                 {
-                    headers = ParseHeaderLines(streamReader, ref consumed);
+                    headers = ParseHeaderLines(lineReader);
                 });
                 if (headers == null) return null;
             }
@@ -58,8 +56,8 @@ namespace Mastersign.MicroHttpServer
             }
 
             Debug.Assert(
-                countingStream.ReadBytes == consumed,
-                "During header parsing, bytes from the request body where read, and lost in the reader buffer");
+                countingStream.ReadBytes == lineReader.TotalReadBytes,
+                "Line reader lies about read bytes");
 
             Stream contentStream = null;
             try
@@ -67,6 +65,7 @@ namespace Mastersign.MicroHttpServer
                 var contentLength = long.Parse(headers.GetByName("Content-Length"));
                 if (contentLength > 0)
                 {
+                    // TODO add lineReader.GetRemainingData() as prefix to request content stream
                     contentStream = new RequestContentStream(stream, contentLength);
                 }
             }
@@ -80,9 +79,9 @@ namespace Mastersign.MicroHttpServer
                 headers, contentStream);
         }
 
-        private ParsedRequestLine ParseRequestLine(StreamReader r, ref int consumed)
+        private ParsedRequestLine ParseRequestLine(LineReader r)
         {
-            var request = ReadLimitedLine(r, RequestLineLimit, ref consumed);
+            var request = r.ReadNextLine();
 
             if (request == null) return ParsedRequestLine.Failed;
 
@@ -107,13 +106,13 @@ namespace Mastersign.MicroHttpServer
             return new ParsedRequestLine(method, uri, protocol);
         }
 
-        private IStringLookup ParseHeaderLines(StreamReader r, ref int consumed)
+        private IStringLookup ParseHeaderLines(LineReader r)
         {
             var headersRaw = new List<KeyValuePair<string, string>>();
             string line;
-            while (!string.IsNullOrEmpty(line = ReadLimitedLine(r, HeaderLineLimit, ref consumed)))
+            while (!string.IsNullOrEmpty(line = r.ReadNextLine()))
             {
-                if (consumed > TotalHeaderLimit)
+                if (r.TotalConsumedBytes > TotalHeaderLimit)
                 {
                     return null;
                 }
@@ -122,49 +121,6 @@ namespace Mastersign.MicroHttpServer
             }
             if (line == null) return null;
             return headersRaw.ToStringLookup();
-        }
-
-        private string ReadLimitedLine(StreamReader r, int limit, ref int consumed)
-        {
-            var sb = new StringBuilder();
-            var exceededLimit = false;
-            int c = 0;
-            var hadCR = false;
-            while (c >= 0)
-            {
-                try
-                {
-                    c = r.Read();
-                }
-                catch (IOException ioex) when (ioex.InnerException is SocketException soex)
-                {
-                    Logger?.Trace($"{soex.ErrorCode} {soex.SocketErrorCode}");
-                    if (soex.SocketErrorCode == SocketError.TimedOut)
-                        continue;
-                    else
-                        return null;
-                }
-                consumed ++;
-                if (sb.Length > limit)
-                {
-                    exceededLimit = true;
-                    break;
-                }
-                if (c == '\r')
-                {
-                    hadCR = true;
-                }
-                else if (hadCR && c == '\n')
-                {
-                    break;
-                }
-                else
-                {
-                    hadCR = false;
-                    sb.Append((char)c);
-                }
-            }
-            return exceededLimit ? null : sb.ToString();
         }
 
         private static KeyValuePair<string, string>? SplitHeader(string header)

@@ -20,7 +20,7 @@ namespace Mastersign.MicroHttpServer
 
         public string Name { get; }
 
-        public int BufferSize { get; set; } = 1024 * 8;
+        public int BufferSize { get; set; } = 0; // 1024 * 8;
         public int RequestStreamLimit { get; set; } = 1024 * 1024;
         public int ResponseStreamLimit { get; set; } = -1;
 
