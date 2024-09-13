@@ -26,7 +26,6 @@ namespace Mastersign.MicroHttpServer
                 context.Response = StringHttpResponse.Create(result, contentType: _contentType);
                 return Task.Factory.GetCompleted();
             }
-
             return next();
         }
     }

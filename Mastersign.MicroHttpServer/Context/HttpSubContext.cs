@@ -34,9 +34,9 @@ namespace Mastersign.MicroHttpServer
         public IHttpResponse Response { 
             get => _parent.Response;
             set => _parent.Response = value;
-    }
+        }
 
-    public ICookiesStorage Cookies => _parent.Cookies;
+        public ICookiesStorage Cookies => _parent.Cookies;
 
         public dynamic State => _parent.State;
 
