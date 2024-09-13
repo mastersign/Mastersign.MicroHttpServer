@@ -60,19 +60,25 @@ namespace Mastersign.MicroHttpServer
                 "Line reader lies about read bytes");
 
             Stream contentStream = null;
-            try
+            if (requestLine.Method == HttpMethod.Post ||
+                requestLine.Method == HttpMethod.Put ||
+                requestLine.Method == HttpMethod.Patch)
             {
-                var contentLength = long.Parse(headers.GetByName("Content-Length"));
-                if (contentLength > 0)
+                try
                 {
-                    // TODO add lineReader.GetRemainingData() as prefix to request content stream
-                    contentStream = new RequestContentStream(stream, contentLength);
+                    var contentLength = long.Parse(headers.GetByName("Content-Length"));
+                    if (contentLength > 0)
+                    {
+                        var preReadBytes = lineReader.GetRemainingData();
+                        contentStream = new RequestContentStream(stream, preReadBytes, contentLength);
+                    }
                 }
-            }
-            catch (Exception) 
-            {
-                // invalid or missing content length header
-                // leads to null content stream
+                catch (Exception)
+                {
+                    // invalid or missing content length header
+                    // leads to content stream of length 0
+                    contentStream = EmptyStream.Instance;
+                }
             }
             return new HttpRequest(
                 requestLine.Method, requestLine.Uri, requestLine.Protocol,

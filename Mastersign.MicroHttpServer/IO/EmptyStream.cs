@@ -5,11 +5,15 @@ namespace Mastersign.MicroHttpServer
 {
     internal class EmptyStream : Stream
     {
+        public static readonly EmptyStream Instance = new EmptyStream();
+
         public override bool CanRead => true;
 
         public override bool CanSeek => false;
 
         public override bool CanWrite => false;
+
+        public override bool CanTimeout => false;
 
         public override long Length => 0;
 

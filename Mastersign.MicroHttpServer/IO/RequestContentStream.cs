@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +11,7 @@ namespace Mastersign.MicroHttpServer
 {
     internal class RequestContentStream : Stream
     {
+        private byte[] _prefix;
         private readonly Stream _child;
         private readonly long _length;
         private long _position = 0L;
@@ -41,8 +44,9 @@ namespace Mastersign.MicroHttpServer
             set => throw new NotSupportedException();
         }
 
-        public RequestContentStream(Stream child, long length)
+        public RequestContentStream(Stream child, byte[] prefix, long length)
         {
+            _prefix = prefix;
             _child = child;
             _length = length;
         }
@@ -60,14 +64,29 @@ namespace Mastersign.MicroHttpServer
         {
             var limitedCount = Math.Max(0, Math.Min(count, (int)(_length - _position)));
             Debug.WriteLine("Sync Read Attempt: requested={0}, limited={1}", count, limitedCount);
-            if (limitedCount <= 0) return 0;
-            var bytesRead = _child.Read(buffer, offset, limitedCount);
+            int bytesRead;
+            if (limitedCount == 0)
+            {
+                bytesRead = 0;
+            }
+            else if (_prefix != null && _position < _prefix.LongLength)
+            {
+                bytesRead = Math.Min(_prefix.Length - (int)_position, limitedCount);
+                Debug.WriteLine("Sync Read Prefix: prefix={0}", _prefix.Length);
+                Array.Copy(_prefix, (int)_position, buffer, offset, bytesRead);
+                _position += bytesRead;
+                if (_position >= _prefix.LongLength) _prefix = null;
+            }
+            else
+            {
+                bytesRead = _child.Read(buffer, offset, limitedCount);
+                _position += bytesRead;
+            }
             Debug.WriteLine("Sync Read Result:  requested={0}, limited={1}, read={2}", count, limitedCount, bytesRead);
-            _position += bytesRead;
             return bytesRead;
         }
 
-        private class LimitedEmptyReadASyncResult : IAsyncResult
+        private class CompletedAsyncResult : IAsyncResult
         {
             public object AsyncState { get; set; }
 
@@ -78,29 +97,49 @@ namespace Mastersign.MicroHttpServer
             public bool IsCompleted => true;
         }
 
+        private class PrefixReadAsyncResult : CompletedAsyncResult
+        {
+            public int ReadBytes { get; set; }
+        }
+
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             var limitedCount = Math.Max(0, Math.Min(count, (int)(_length - _position)));
             Debug.WriteLine("Old Async Read Attempt: requested={0}, limited={1}", count, limitedCount);
             if (limitedCount <= 0)
             {
-                return new LimitedEmptyReadASyncResult() { AsyncState = state };
+                return new CompletedAsyncResult() { AsyncState = state };
             }
-            else
+            if (_prefix != null && _position < _prefix.LongLength)
             {
-                return _child.BeginRead(buffer, offset, limitedCount, callback, state);
+                var bytesRead = Math.Min(_prefix.Length - (int)_position, limitedCount);
+                Debug.WriteLine("Old Async Read Prefix: prefix={0}", _prefix.Length);
+                Array.Copy(_prefix, (int)_position, buffer, offset, bytesRead);
+                return new PrefixReadAsyncResult() { AsyncState = state, ReadBytes = bytesRead };
             }
+            return _child.BeginRead(buffer, offset, limitedCount, callback, state);
         }
 
         public override int EndRead(IAsyncResult asyncResult)
         {
-            if (asyncResult is LimitedEmptyReadASyncResult)
+            int bytesRead;
+            if (asyncResult is PrefixReadAsyncResult)
             {
-                return 0;
+                bytesRead = ((PrefixReadAsyncResult)asyncResult).ReadBytes;
+                _position += bytesRead;
+                if (_position >= _prefix.LongLength) _prefix = null;
             }
-            var bytesRead = _child.EndRead(asyncResult);
+            else if (asyncResult is CompletedAsyncResult)
+            {
+                // limited count was 0
+                bytesRead = 0;
+            }
+            else
+            {
+                bytesRead = _child.EndRead(asyncResult);
+                _position += bytesRead;
+            }
             Debug.WriteLine("Old Async Read Result: read={0}", bytesRead);
-            _position += bytesRead;
             return bytesRead;
         }
 
@@ -108,18 +147,43 @@ namespace Mastersign.MicroHttpServer
         {
             var limitedCount = Math.Max(0, Math.Min(count, (int)(_length - _position)));
             Debug.WriteLine("Async Read Attempt: requested={0}, limited={1}", count, limitedCount);
-            if (limitedCount <= 0) return 0;
-            var bytesRead = await _child.ReadAsync(buffer, offset, limitedCount, cancellationToken);
+            int bytesRead;
+            if (limitedCount == 0)
+            { 
+                bytesRead = 0;
+            }
+            else if (_prefix != null && _position < _prefix.LongLength)
+            {
+                bytesRead = Math.Min(_prefix.Length - (int)_position, limitedCount);
+                Debug.WriteLine("Async Read Prefix: prefix={0}", _prefix.Length);
+                Array.Copy(_prefix, (int)_position, buffer, offset, bytesRead);
+                _position += bytesRead;
+                if (_position >= _prefix.LongLength) _prefix = null;
+            }
+            else
+            {
+                bytesRead = await _child.ReadAsync(buffer, offset, limitedCount, cancellationToken);
+                _position += bytesRead;
+            }
             Debug.WriteLine("Async Read Result: requested={0}, limited={1}, read={2}", count, limitedCount, bytesRead);
-            _position += bytesRead;
             return bytesRead;
         }
 
         public override int ReadByte()
         {
             if (_position >= _length) return -1;
-            var v = _child.ReadByte();
-            if (v >= 0) _position++;
+            int v;
+            if (_prefix != null && _position < _prefix.LongLength)
+            {
+                v = _prefix[(int)_position];
+                _position++;
+                if (_position >= _prefix.LongLength) _prefix = null;
+            }
+            else
+            {
+                v = _child.ReadByte();
+                if (v >= 0) _position++;
+            }
             return v;
         }
 
