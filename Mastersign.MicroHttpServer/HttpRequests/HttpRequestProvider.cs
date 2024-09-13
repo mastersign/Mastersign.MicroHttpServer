@@ -67,7 +67,7 @@ namespace Mastersign.MicroHttpServer
                 var contentLength = long.Parse(headers.GetByName("Content-Length"));
                 if (contentLength > 0)
                 {
-                    contentStream = new ContentStream(stream, contentLength);
+                    contentStream = new RequestContentStream(stream, contentLength);
                 }
             }
             catch (Exception) 
