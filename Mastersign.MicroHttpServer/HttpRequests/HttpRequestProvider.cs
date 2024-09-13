@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -23,7 +24,8 @@ namespace Mastersign.MicroHttpServer
 
         public async Task<IHttpRequest> Provide(Stream stream, EndPoint remoteEndPoint)
         {
-            var streamReader = new StreamReader(stream, AllowUTF8Header ? Encoding.UTF8 : Encoding.ASCII);
+            var countingStream = new CountingStream(stream);
+            var streamReader = new StreamReader(countingStream, AllowUTF8Header ? Encoding.UTF8 : Encoding.ASCII);
             var consumed = 0;
 
             ParsedRequestLine requestLine = ParsedRequestLine.Failed;
@@ -54,6 +56,10 @@ namespace Mastersign.MicroHttpServer
                     throw;
                 }
             }
+
+            Debug.Assert(
+                countingStream.ReadBytes == consumed,
+                "During header parsing, bytes from the request body where read, and lost in the reader buffer");
 
             Stream contentStream = null;
             try
