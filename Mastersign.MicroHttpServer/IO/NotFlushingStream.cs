@@ -15,6 +15,8 @@ namespace Mastersign.MicroHttpServer
 
         public override bool CanWrite => _child.CanWrite;
 
+        public override bool CanTimeout => _child.CanTimeout;
+
         public override long Length => _child.Length;
 
         public override long Position
